@@ -21,6 +21,7 @@ Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+
 | `/zoom-start --prd <path>` | 启动新设计任务（见下方详细流程） |
 | `/zoom-resume` | 恢复上次未完成的任务 |
 | `/zoom-status` | 显示当前任务状态摘要 |
+| `/zoom-update` | 更新工作流到最新版本 |
 | `/recall list` | 列出所有可回引的归档文件 |
 | `/recall <phase> --query "<keyword>"` | 按关键词精准回引归档内容 |
 
@@ -43,6 +44,14 @@ Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+
 
 1. 运行 `python3 scripts/validate_transition.py --summary tasks/<task-name>`
 2. 将结构化 JSON 输出格式化展示给设计师
+
+### `/zoom-update` 详细流程
+
+1. 运行 `git pull origin main`
+2. 运行 `pip3 install -r .zoom-ai/scripts/requirements.txt`（更新依赖）
+3. 运行 `python3 .zoom-ai/scripts/integration_test.py`（验证完整性）
+4. 向设计师报告更新结果：更新了哪些文件、集成测试是否通过
+5. **注意**：更新不会影响 `tasks/` 中已有的任务数据和 `.zoom-ai/memory/` 中的归档
 
 ## ⚠️ Hooks 补偿规则（Codex 必读）
 
