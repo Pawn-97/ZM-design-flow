@@ -68,21 +68,23 @@ python3 --version
 
 ## 2. 为新项目安装工作流
 
-> **核心概念**：每个设计项目有自己的文件夹。工作流安装到项目文件夹中，所有产出（PRD 分析、调研报告、线框图、原型）都在这个文件夹里。
+> **核心概念**：以**产品**为单位创建文件夹（如 "Zoom Phone"、"Zoom Meetings"），一个产品文件夹里可以跑多个设计任务。同一产品的所有任务共享产品知识库和设计约束记忆。
 
 ### 一键安装
 
-把下面这行命令**整行**复制粘贴到终端，把末尾的路径换成你的项目文件夹：
+把下面这行命令**整行**复制粘贴到终端，把末尾的路径换成你的**产品名**：
 
 ```
-curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/我的项目名
+curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/我的产品名
 ```
 
-**举个例子**：如果你要做一个 Spam Dashboard 项目，就运行：
+**举个例子**：如果你负责 Zoom Phone 产品线的设计，就运行：
 
 ```
-curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/spam-dashboard
+curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/zoom-phone
 ```
+
+之后这个产品的所有设计任务（Spam Dashboard、Call Quality、User Onboarding...）都在这个文件夹里启动。
 
 安装脚本会自动：
 - 下载工作流引擎文件
@@ -103,10 +105,10 @@ curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/mai
 
 ### 3.1 启动新任务
 
-打开终端，进入你的项目文件夹：
+打开终端，进入你的产品文件夹：
 
 ```
-cd ~/Desktop/spam-dashboard
+cd ~/Desktop/zoom-phone
 ```
 
 启动 Claude Code：
@@ -125,10 +127,10 @@ claude
 
 > **小技巧**：不知道文件路径？把 PRD 文件直接**拖拽**到终端窗口，路径会自动填入。
 >
-> 你也可以先把 PRD 文件放到项目文件夹里，然后直接写文件名：
-> `/harnessdesign-start --prd my-prd.md`
+> 你也可以先把 PRD 文件放到产品文件夹里，然后直接写文件名：
+> `/harnessdesign-start --prd spam-dashboard-prd.md`
 
-**首次启动**会进入 Onboarding（Phase 0），AI 会引导你建立产品知识库。同一产品的后续任务会跳过这一步。
+**首次启动**会进入 Onboarding（Phase 0），AI 会引导你建立产品知识库。**同一产品的后续任务会自动跳过这一步**，直接复用已有的知识库。这就是为什么要以产品为单位建文件夹——知识库、设计约束和调研洞察在同一产品的所有任务之间共享。
 
 ### 3.2 工作流四个阶段
 
@@ -146,7 +148,7 @@ claude
 可以随时关闭终端。下次回来时：
 
 ```
-cd ~/Desktop/spam-dashboard
+cd ~/Desktop/zoom-phone
 ```
 
 ```
@@ -169,55 +171,78 @@ AI 会自动恢复到你上次离开的位置。
 /harnessdesign-status
 ```
 
-### 3.5 你的项目文件夹里有什么
+### 3.5 你的产品文件夹里有什么
 
-任务完成后，项目文件夹的结构大致是这样的：
+多个任务完成后，产品文件夹的结构大致是这样的：
 
 ```
-~/Desktop/spam-dashboard/
-├── my-prd.md                      ← 你的 PRD 原文
-├── tasks/
-│   └── spam-dashboard/
-│       ├── confirmed_intent.md    ← Phase 1: 对齐共识
-│       ├── 00-research.md         ← Phase 2: 调研报告
-│       ├── 01-jtbd.md             ← Phase 2: 用户任务分析
-│       ├── 02-structure.md        ← Phase 3: 交互方案总表
-│       ├── 03-design-contract.md  ← Phase 3→4: 设计合约
-│       ├── wireframes/            ← Phase 3: 黑白线框 HTML
-│       └── index.html             ← Phase 4: 高保真原型 ★
-├── .harnessdesign/                ← 工作流引擎（不用管）
-├── scripts/                       ← 验证脚本（不用管）
-└── CLAUDE.md / AGENTS.md          ← AI 配置（不用管）
+~/Desktop/zoom-phone/
+├── spam-dashboard-prd.md               ← PRD 原文（你放进来的）
+├── call-quality-prd.md                 ← 另一个任务的 PRD
+│
+├── tasks/                              ← ★ 所有任务的产出物
+│   ├── spam-dashboard/                 ← 任务 A
+│   │   ├── confirmed_intent.md         ← Phase 1: 对齐共识
+│   │   ├── 00-research.md              ← Phase 2: 调研报告
+│   │   ├── 01-jtbd.md                  ← Phase 2: 用户任务分析
+│   │   ├── 02-structure.md             ← Phase 3: 交互方案总表
+│   │   ├── 03-design-contract.md       ← Phase 3→4: 设计合约
+│   │   ├── wireframes/                 ← Phase 3: 黑白线框 HTML
+│   │   └── index.html                  ← Phase 4: 高保真原型 ★
+│   └── call-quality/                   ← 任务 B（同样的结构）
+│       └── ...
+│
+├── .harnessdesign/                     ← 工作流引擎 + 共享知识（不用管）
+│   ├── knowledge/product-context/      ← 产品知识库（所有任务共享）
+│   └── memory/constraints/             ← 设计约束记忆（所有任务共享）
+├── scripts/                            ← 验证脚本（不用管）
+└── CLAUDE.md / AGENTS.md              ← AI 配置（不用管）
 ```
 
-你最终需要的产出物主要是 `tasks/<任务名>/` 下的文件。
+**共享机制**：同一产品文件夹内的所有任务自动共享：
+- **产品知识库**（Onboarding 只需跑一次）
+- **设计约束记忆**（前一个任务确认的设计规则，后续任务自动继承）
+- **知识提取**（每个任务完成后，AI 会把学到的新知识回写到知识库）
 
 ---
 
 ## 4. 多项目管理与切换
 
-### 4.1 创建新项目
+### 4.1 同一产品内启动新任务
 
-每个项目独立安装，互不影响。再运行一次安装命令，换个文件夹名即可：
-
-```
-curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/新项目名
-```
-
-比如你同时在做三个项目：
+**不需要重新安装**。直接在产品文件夹的 claude 会话中启动新任务：
 
 ```
-~/Desktop/spam-dashboard/       ← Spam Dashboard 项目
-~/Desktop/meeting-scheduler/    ← Meeting Scheduler 项目
-~/Desktop/user-onboarding/      ← User Onboarding 项目
+/harnessdesign-start --prd call-quality-prd.md
 ```
 
-### 4.2 在项目之间切换
+新任务会创建在 `tasks/call-quality/` 下，自动复用已有的产品知识库。
 
-切换项目就是切换文件夹。**关闭当前的 AI 对话**（按 `Ctrl + C` 或直接关闭终端），然后：
+### 4.2 创建新产品的工作空间
+
+当你要开始一个**不同产品**的设计工作时，再运行一次安装命令：
 
 ```
-cd ~/Desktop/另一个项目名
+curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/zoom-meetings
+```
+
+比如你负责两条产品线：
+
+```
+~/Desktop/zoom-phone/         ← Zoom Phone（多个任务共享知识库）
+│   ├── tasks/spam-dashboard/
+│   └── tasks/call-quality/
+│
+~/Desktop/zoom-meetings/      ← Zoom Meetings（独立的知识库）
+    └── tasks/scheduler-redesign/
+```
+
+### 4.3 在产品之间切换
+
+**关闭当前的 AI 对话**（按 `Ctrl + C` 或直接关闭终端），然后：
+
+```
+cd ~/Desktop/zoom-meetings
 ```
 
 ```
@@ -228,32 +253,39 @@ claude
 /harnessdesign-resume
 ```
 
-AI 会读取这个项目文件夹中的 `task-progress.json`，自动恢复到该项目上次的位置。
+AI 会读取这个产品文件夹中的任务状态，自动恢复。如果有多个任务，会让你选择要恢复哪一个。
 
-> **重要**：不要在同一个终端窗口直接 `cd` 到另一个项目再启动 claude——先退出当前 claude 会话。
+> **重要**：不要在同一个终端窗口直接 `cd` 到另一个产品再启动 claude——先退出当前 claude 会话。
 
-### 4.3 查看所有项目状态
+### 4.4 查看所有产品和任务状态
 
 在终端中运行（不需要进入 claude）：
 
 ```
 for d in ~/Desktop/*/tasks/*/task-progress.json; do
-  echo "📁 $(dirname $(dirname $d))"
-  python3 -c "import json; d=json.load(open('$d')); print(f'   状态: {d[\"current_state\"]}')"
-  echo ""
+  project=$(basename $(dirname $(dirname "$d")))
+  task=$(basename $(dirname "$d"))
+  state=$(python3 -c "import json; print(json.load(open('$d'))['current_state'])")
+  echo "📁 $project → $task: $state"
 done
 ```
 
-这会列出桌面上所有安装了 HarnessDesign 的项目及其当前状态。
+输出类似：
+
+```
+📁 zoom-phone → spam-dashboard: review
+📁 zoom-phone → call-quality: alignment
+📁 zoom-meetings → scheduler-redesign: interaction_design
+```
 
 ---
 
 ## 5. 更新工作流
 
-当 GuanchengDing 通知有新版本时，对**每个项目**重新运行安装命令：
+当 GuanchengDing 通知有新版本时，对**每个产品文件夹**重新运行安装命令：
 
 ```
-curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/spam-dashboard
+curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/zoom-phone
 ```
 
 安装脚本会：
@@ -268,20 +300,20 @@ curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/mai
 
 ## 6. 移除工作流
 
-### 移除单个项目
+### 移除整个产品工作空间
 
 ```
-rm -rf ~/Desktop/spam-dashboard
+rm -rf ~/Desktop/zoom-phone
 ```
 
 > **想保留产出物？** 先把 `tasks/` 目录中需要的文件复制到别处。
 
 ### 只移除工作流引擎（保留项目文件）
 
-如果项目文件夹里还有其他你的文件，只移除工作流部分：
+如果文件夹里还有其他你的文件，只移除工作流部分：
 
 ```
-cd ~/Desktop/spam-dashboard
+cd ~/Desktop/zoom-phone
 rm -rf .harnessdesign scripts .claude CLAUDE.md AGENTS.md tasks
 ```
 
