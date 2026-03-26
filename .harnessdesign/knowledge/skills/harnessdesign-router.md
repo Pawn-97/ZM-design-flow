@@ -28,12 +28,7 @@ allowed_tools:
 
 > **⚡ Token 效率原则**：初始化阶段的目标是尽快进入与设计师的对话。不要在对话开始前做不必要的探索（遍历目录、读 git log、运行校验脚本等）。只读取流程必需的文件。
 
-1. **Onboarding 前置检查**（最先执行）：
-   - 检查 `.harnessdesign/knowledge/product-context/product-context-index.md` 是否存在**且内容有效**
-   - 有效 = 文件存在 + 内容超过 200 字符 + 不包含 "Stub" 或 "placeholder"
-   - 判定结果决定后续走 **路径 A**（无知识库）或 **路径 B**（有知识库）
-
-2. **任务收集对话**（Onboarding 检查之后、创建任务工作区之前）：
+1. **任务收集对话**（最先执行）：
 
    向设计师发出邀请，收集本次设计任务的输入：
 
@@ -67,7 +62,12 @@ allowed_tools:
    [STOP AND WAIT]
    ```
 
-3. **创建任务工作区**（设计师确认后）：
+2. **知识库检查**（任务收集完成后）：
+   - 检查 `.harnessdesign/knowledge/product-context/product-context-index.md` 是否存在**且内容有效**
+   - 有效 = 文件存在 + 内容超过 200 字符 + 不包含 "Stub" 或 "placeholder"
+   - 判定结果决定后续走 **路径 A**（无知识库 → 先 Onboarding 再 Phase 1）或 **路径 B**（有知识库 → 直接 Phase 1）
+
+3. **创建任务工作区**（设计师确认任务名后）：
    ```
    tasks/<task-name>/
    ├── task-progress.json
