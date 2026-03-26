@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "task-progress.json Schema for Zoom AI-UX Workflow",
+  "description": "State machine credential file. AI reads this before every action to restore context. Scripts validate transitions against this structure.",
+  "type": "object",
+  "required": ["task_name", "current_state", "expected_next_state", "states"],
+  "properties": {
+    "task_name": {
+      "type": "string",
+      "description": "Human-readable task identifier"
+    },
+    "prd_path": {
+      "type": "string",
+      "description": "Path to the PRD file that initiated this task"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "current_state": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "init",
+        "alignment",
+        "research_jtbd",
+        "interaction_design",
+        "logic_inquisitor",
+        "prepare_design_contract",
+        "contract_review",
+        "hifi_generation",
+        "baseline_validation",
+        "review",
+        "knowledge_extraction",
+        "complete"
+      ],
+      "description": "Current position in the state machine. MVP chain: onboarding → init → alignment → research_jtbd → interaction_design → prepare_design_contract → contract_review → hifi_generation → review → knowledge_extraction → complete. States 'logic_inquisitor' and 'baseline_validation' are reserved for V0.4."
+    },
+    "expected_next_state": {
+      "type": ["string", "null"],
+      "description": "The only valid next state. validate_transition.py checks this before allowing transition. null when complete."
+    },
+    "states": {
+      "type": "object",
+      "description": "Each key is a state name. Tracks pass/approval status and artifact existence.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["passes", "approved_by", "artifacts"],
+        "properties": {
+          "passes": {
+            "type": "boolean",
+            "description": "Whether this state's work is complete"
+          },
+          "approved_by": {
+            "type": ["string", "null"],
+            "description": "Set to 'designer' when human approves at a [STOP] control point. null if not yet approved or if state doesn't require approval."
+          },
+          "approved_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "ISO timestamp of approval"
+          },
+          "artifacts": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of output file paths produced by this state (relative to task directory)"
+          }
+        }
+      }
+    },
+    "scenarios": {
+      "type": "object",
+      "description": "Phase 3 per-scenario tracking (optional, present only during/after Phase 3)",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in_progress", "selected", "archived"]
+          },
+          "selected_option": {
+            "type": ["string", "null"]
+          },
+          "rounds_completed": {
+            "type": "integer"
+          },
+          "archived_to": {
+            "type": ["string", "null"],
+            "description": "Path to archive file after scenario completion"
+          }
+        }
+      }
+    },
+    "phase2_state": {
+      "type": "object",
+      "description": "Phase 2 topic-level context reset tracking",
+      "properties": {
+        "insight_cards_path": {
+          "type": ["string", "null"],
+          "description": "Path to accumulated InsightCards file"
+        },
+        "current_topic_domain": {
+          "type": ["string", "null"],
+          "description": "Current active topic domain (e.g., 'competitive', 'user_pain_points')"
+        },
+        "topic_count": {
+          "type": "integer",
+          "description": "Number of topics explored so far"
+        }
+      }
+    },
+    "archive_index": {
+      "type": "array",
+      "description": "Index of all archived session files for recall",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string" },
+          "phase": { "type": "string" },
+          "summary": { "type": "string" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "accumulated_constraints": {
+      "type": "array",
+      "description": "Persistent design constraints accumulated across Phase 4 review rounds",
+      "items": { "type": "string" }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+# UX Heuristics — 认知负荷阈值配置
+# 用于 cognitive_load_audit.py 自动化审计
+
+# 单屏认知负荷限制
+cognitive_load:
+  # 单个视图（屏幕/页面/模态）中的最大可交互元素数
+  max_interactive_elements_per_view: 12
+  # 单个视图中的最大主操作按钮数（CTA）
+  max_primary_actions_per_view: 3
+  # 导航层级最大深度
+  max_navigation_depth: 4
+  # 表单单页最大字段数
+  max_form_fields_per_page: 8
+  # 信息密度评分上限（基于元素数/可视面积比）
+  max_info_density_score: 0.7
+
+# DOM 结构限制
+dom_structure:
+  # DOM 嵌套最大深度（从 body 开始计算）
+  max_nesting_depth: 10
+  # 单个容器中最大直接子元素数
+  max_children_per_container: 15
+  # 隐藏元素比例上限（display:none / visibility:hidden）
+  max_hidden_element_ratio: 0.3
+
+# 交互模式限制
+interaction:
+  # 单个操作流程最大步骤数
+  max_steps_per_flow: 7
+  # 模态嵌套最大层数
+  max_modal_nesting: 2
+  # 同时可见的 toast/notification 上限
+  max_concurrent_notifications: 3
+
+# 视觉层次
+visual_hierarchy:
+  # 同一视图中最大字体大小种类数
+  max_font_size_variants: 5
+  # 同一视图中最大颜色种类数（不含灰度）
+  max_color_variants: 6
+  # 最小可点击区域（px）
+  min_touch_target_size: 44
+
+# 空状态与边缘态
+edge_states:
+  # 每个列表/数据视图是否必须有空状态
+  require_empty_state_for_lists: true
+  # 网络请求场景是否必须有 error/loading 状态
+  require_error_states_for_network: true
+  # 写操作是否必须有确认/撤销
+  require_confirmation_for_writes: true
+
+# 审计严重级别映射
+severity:
+  # 超出阈值 <= 20% → warning
+  warning_threshold_ratio: 1.2
+  # 超出阈值 > 20% → error
+  error_threshold_ratio: 1.5
+  # 超出阈值 > 50% → critical (阻断)
+  critical_threshold_ratio: 2.0
