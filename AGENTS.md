@@ -18,14 +18,14 @@ Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+
 
 | 命令 | 操作 |
 |------|------|
-| `/zoom-start --prd <path>` | 启动新设计任务（见下方详细流程） |
-| `/zoom-resume` | 恢复上次未完成的任务 |
-| `/zoom-status` | 显示当前任务状态摘要 |
-| `/zoom-update` | 更新工作流到最新版本 |
+| `/harnessdesign-start --prd <path>` | 启动新设计任务（见下方详细流程） |
+| `/harnessdesign-resume` | 恢复上次未完成的任务 |
+| `/harnessdesign-status` | 显示当前任务状态摘要 |
+| `/harnessdesign-update` | 更新工作流到最新版本 |
 | `/recall list` | 列出所有可回引的归档文件 |
 | `/recall <phase> --query "<keyword>"` | 按关键词精准回引归档内容 |
 
-### `/zoom-start --prd <path>` 详细流程
+### `/harnessdesign-start --prd <path>` 详细流程
 
 1. 读取 `AGENTS.md`（本文件）了解全部规则
 2. 读取 `.zoom-ai/knowledge/skills/zoom-router.md` 的 §1.1 了解初始化流程
@@ -33,19 +33,19 @@ Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+
 4. 执行 Onboarding 前置检查（检查知识库是否有效）
 5. 按状态机调度逻辑执行工作流
 
-### `/zoom-resume` 详细流程
+### `/harnessdesign-resume` 详细流程
 
 1. 扫描 `tasks/` 目录，找到包含 `task-progress.json` 的任务工作区
 2. 读取 `task-progress.json`，恢复 `current_state`
 3. 读取 `.zoom-ai/knowledge/skills/zoom-router.md` 的 §6（会话恢复）
 4. 重建锚定层，加载对应 Skill 继续执行
 
-### `/zoom-status` 详细流程
+### `/harnessdesign-status` 详细流程
 
 1. 运行 `python3 scripts/validate_transition.py --summary tasks/<task-name>`
 2. 将结构化 JSON 输出格式化展示给设计师
 
-### `/zoom-update` 详细流程
+### `/harnessdesign-update` 详细流程
 
 1. 运行 `git pull origin main`
 2. 运行 `pip3 install -r .zoom-ai/scripts/requirements.txt`（更新依赖）

@@ -296,7 +296,7 @@ digest: "<一句话摘要：这次 Task 解决了什么问题，产出了什么>
 
 **知识库更新**：+[N] 条新知识
 
-要开始新的 Task，请使用 /zoom-start --prd <path>。"
+要开始新的 Task，请使用 /harnessdesign-start --prd <path>。"
 ```
 
 ---

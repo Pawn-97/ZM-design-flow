@@ -22,9 +22,9 @@ allowed_tools:
 
 ## 1. 工作流入口
 
-### 1.1 `/zoom-start` 命令处理
+### 1.1 `/harnessdesign-start` 命令处理
 
-当设计师输入 `/zoom-start --prd <path>` 时：
+当设计师输入 `/harnessdesign-start --prd <path>` 时：
 
 1. **创建任务工作区**：
    ```

@@ -12,7 +12,7 @@
 Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+JTBD → Phase 3: 逐场景交互方案 → Phase 4: 高保真 HTML
 ```
 
-**入口命令**：设计师通过 `/zoom-start --prd <path>` 启动工作流。
+**入口命令**：设计师通过 `/harnessdesign-start --prd <path>` 启动工作流。
 
 ## 目录结构
 

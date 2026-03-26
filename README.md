@@ -31,7 +31,7 @@ python3 .zoom-ai/scripts/integration_test.py
 claude
 
 # 启动工作流（首次会触发 Onboarding）
-/zoom-start --prd path/to/your-prd.md
+/harnessdesign-start --prd path/to/your-prd.md
 ```
 
 ### 工作流阶段
