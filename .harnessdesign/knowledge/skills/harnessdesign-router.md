@@ -26,61 +26,122 @@ allowed_tools:
 
 当设计师输入 `/harnessdesign-start --prd <path>` 时：
 
-1. **创建任务工作区**：
+> **⚡ Token 效率原则**：初始化阶段的目标是尽快进入与设计师的对话。不要在对话开始前做不必要的探索（遍历目录、读 git log、运行校验脚本等）。只读取流程必需的文件。
+
+1. **Onboarding 前置检查**（最先执行）：
+   - 检查 `.harnessdesign/knowledge/product-context/product-context-index.md` 是否存在**且内容有效**
+   - 有效 = 文件存在 + 内容超过 200 字符 + 不包含 "Stub" 或 "placeholder"
+   - 判定结果决定后续走 **路径 A**（无知识库）或 **路径 B**（有知识库）
+
+2. **创建任务工作区**：
    ```
    tasks/<task-name>/
    ├── task-progress.json
    └── wireframes/           # Phase 3 线框原型存放
    ```
    - `<task-name>` 从 PRD 文件名或设计师指定的名称生成（kebab-case）
+   - **首次创建 `task-progress.json` 不需要运行 `validate_transition.py`**——校验仅适用于更新已有状态
 
-2. **初始化 `task-progress.json`**：
-   ```json
-   {
-     "task_name": "<task-name>",
-     "prd_path": "<path>",
-     "created_at": "<ISO 8601>",
-     "current_state": "init",
-     "states": {
-       "onboarding": { "passes": false, "approved_by": null, "artifacts": [] },
-       "init": { "passes": true, "approved_by": null, "artifacts": ["task-progress.json"] },
-       "alignment": { "passes": false, "approved_by": null, "artifacts": [] },
-       "research_jtbd": { "passes": false, "approved_by": null, "artifacts": [] },
-       "interaction_design": {
-         "passes": false,
-         "approved_by": null,
-         "artifacts": [],
-         "scenarios": {}
-       },
-       "prepare_design_contract": { "passes": false, "approved_by": null, "artifacts": [] },
-       "contract_review": { "passes": false, "approved_by": null, "artifacts": [] },
-       "hifi_generation": { "passes": false, "approved_by": null, "artifacts": [] },
-       "review": { "passes": false, "approved_by": null, "artifacts": [] },
-       "knowledge_extraction": { "passes": false, "approved_by": null, "artifacts": [] },
-       "complete": { "passes": false, "approved_by": null, "artifacts": [] }
-     },
-     "phase2_state": {
-       "insight_cards_path": null,
-       "current_topic_domain": null,
-       "topic_count": 0
-     },
-     "archive_index": [],
-     "accumulated_constraints": []
-   }
-   ```
+3. **根据知识库状态选择路径**：
 
-3. **Onboarding 前置检查**：
-   - 检查 `.harnessdesign/knowledge/product-context/product-context-index.md` 是否存在**且内容有效**
-   - 有效 = 文件存在 + 内容超过 200 字符 + 不包含 "Stub" 或 "placeholder"
-   - **不存在或内容无效** → 读取并执行 `onboarding-skill.md`，完成后将 `onboarding.passes` 设为 `true`
-   - **存在且内容有效** → 跳过 Onboarding，将 `onboarding.passes` 设为 `true`（标记为已完成）
+---
 
-4. **注入锚定层**：
-   - 读取 `product-context-index.md`（L0，~500-800 tokens）作为锚定层常驻上下文
-   - 读取 `task-progress.json` 当前状态
-   - 构建摘要索引（初始为空）
+#### 路径 A：知识库不存在或无效 → Onboarding 引导对话
 
-5. **进入 Phase 1**：更新 `current_state` 为 `alignment`，读取并执行 `alignment-skill.md`
+初始化 `task-progress.json`（注意 `current_state` 和 `expected_next_state`）：
+
+```json
+{
+  "task_name": "<task-name>",
+  "prd_path": "<path>",
+  "created_at": "<ISO 8601>",
+  "current_state": "onboarding",
+  "expected_next_state": "init",
+  "states": {
+    "onboarding": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "init": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "alignment": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "research_jtbd": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "interaction_design": {
+      "passes": false,
+      "approved_by": null,
+      "approved_at": null,
+      "artifacts": [],
+      "scenarios": {}
+    },
+    "prepare_design_contract": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "contract_review": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "hifi_generation": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "review": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "knowledge_extraction": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "complete": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] }
+  },
+  "phase2_state": {
+    "insight_cards_path": null,
+    "current_topic_domain": null,
+    "topic_count": 0
+  },
+  "archive_index": [],
+  "accumulated_constraints": []
+}
+```
+
+**⚠️ 关键指令：写完 `task-progress.json` 后，立即读取并执行 `onboarding-skill.md` 的 §2 引导对话。你的第一条面向用户的消息必须是 §2.1 的开场白。不要在此之前进行任何额外的文件探索、PRD 阅读、校验脚本运行或其他准备工作。PRD 将在 Phase 1（alignment）才阅读。**
+
+Onboarding 完成后：
+- `onboarding.passes` 和 `init.passes` 均设为 `true`
+- 注入锚定层（读取新生成的 `product-context-index.md`）
+- 更新 `current_state` 为 `alignment`，`expected_next_state` 为 `research_jtbd`
+- 进入 Phase 1：读取并执行 `alignment-skill.md`
+
+---
+
+#### 路径 B：知识库存在且有效 → 直接进入 Phase 1
+
+初始化 `task-progress.json`：
+
+```json
+{
+  "task_name": "<task-name>",
+  "prd_path": "<path>",
+  "created_at": "<ISO 8601>",
+  "current_state": "alignment",
+  "expected_next_state": "research_jtbd",
+  "states": {
+    "onboarding": { "passes": true, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "init": { "passes": true, "approved_by": null, "approved_at": null, "artifacts": ["task-progress.json"] },
+    "alignment": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "research_jtbd": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "interaction_design": {
+      "passes": false,
+      "approved_by": null,
+      "approved_at": null,
+      "artifacts": [],
+      "scenarios": {}
+    },
+    "prepare_design_contract": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "contract_review": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "hifi_generation": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "review": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "knowledge_extraction": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "complete": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] }
+  },
+  "phase2_state": {
+    "insight_cards_path": null,
+    "current_topic_domain": null,
+    "topic_count": 0
+  },
+  "archive_index": [],
+  "accumulated_constraints": []
+}
+```
+
+注入锚定层：
+- 读取 `product-context-index.md`（L0，~500-800 tokens）作为锚定层常驻上下文
+- 读取 `task-progress.json` 当前状态
+- 构建摘要索引（初始为空）
+
+进入 Phase 1：读取并执行 `alignment-skill.md`
 
 ---
 
