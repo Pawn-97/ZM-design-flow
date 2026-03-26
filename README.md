@@ -1,4 +1,4 @@
-# Zoom AI-UX Workflow
+# HarnessDesign AI-UX Workflow
 
 便携式 AI 驱动 UX 设计工作流引擎。嵌入 AI 编码工具（Claude Code / Codex）中运行，引导设计师从 PRD 到高保真 HTML 原型。
 
@@ -17,10 +17,10 @@ git clone https://[https://github.com/Pawn-97/ZM-design-flow.git]
 cd design-flow
 
 # 2. 安装 Python 依赖（验证脚本需要）
-pip install -r .zoom-ai/scripts/requirements.txt
+pip install -r .harnessdesign/scripts/requirements.txt
 
 # 3. 验证安装完整性
-python3 .zoom-ai/scripts/integration_test.py
+python3 .harnessdesign/scripts/integration_test.py
 # 预期：64 passed, 0 failed
 ```
 
@@ -49,7 +49,7 @@ Phase 4: 高保真 HTML 原型 → ZDS 视觉规范
 ## 目录结构
 
 ```
-.zoom-ai/
+.harnessdesign/
 ├── knowledge/
 │   ├── skills/              # Skill SOP 文件（工作流核心）
 │   ├── product-context/     # 产品知识库（Onboarding 生成）
@@ -72,20 +72,20 @@ tasks/                       # 任务工作区（运行时生成，已 gitignore
 
 ```bash
 # 复制核心文件到目标项目
-cp -r .zoom-ai/ /path/to/your-project/.zoom-ai/
+cp -r .harnessdesign/ /path/to/your-project/.harnessdesign/
 cp -r scripts/ /path/to/your-project/scripts/
 cp CLAUDE.md /path/to/your-project/CLAUDE.md
 cp AGENTS.md /path/to/your-project/AGENTS.md
 
 # 如果目标项目已有 CLAUDE.md，手动合并内容
 # 安装依赖
-pip install -r /path/to/your-project/.zoom-ai/scripts/requirements.txt
+pip install -r /path/to/your-project/.harnessdesign/scripts/requirements.txt
 ```
 
 ## 卸载
 
 ```bash
-rm -rf .zoom-ai/ tasks/
+rm -rf .harnessdesign/ tasks/
 rm -f scripts/validate_transition.py scripts/verify_archive.py
 rm -f scripts/hook_pre_write.py scripts/hook_post_write.py
 rm -f scripts/task_progress_schema.json
@@ -97,7 +97,7 @@ rm -rf .claude/hooks.json
 
 ```bash
 # 全量一致性检查
-python3 .zoom-ai/scripts/integration_test.py
+python3 .harnessdesign/scripts/integration_test.py
 
 # 查看某个任务的当前状态
 python3 scripts/validate_transition.py --summary tasks/<task-name>

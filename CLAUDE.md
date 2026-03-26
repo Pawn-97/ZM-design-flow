@@ -1,10 +1,10 @@
-# Zoom AI-UX Workflow — Claude Code 配置
+# HarnessDesign AI-UX Workflow — Claude Code 配置
 
 ## 项目概述
 
-本项目是一套 **便携式 Skill + Knowledge 目录（`.zoom-ai/`）**，嵌入 Claude Code 中运行。AI 工具的 Agent 循环就是编排引擎——Skill SOP 文件（Markdown + YAML）引导你按四阶段工作流执行 UX 设计。
+本项目是一套 **便携式 Skill + Knowledge 目录（`.harnessdesign/`）**，嵌入 Claude Code 中运行。AI 工具的 Agent 循环就是编排引擎——Skill SOP 文件（Markdown + YAML）引导你按四阶段工作流执行 UX 设计。
 
-**你的角色**：按照 `.zoom-ai/knowledge/skills/` 中的 Skill SOP 指令行事。不要自行发明工作流步骤——所有调度逻辑已在 Skill 文件中定义。
+**你的角色**：按照 `.harnessdesign/knowledge/skills/` 中的 Skill SOP 指令行事。不要自行发明工作流步骤——所有调度逻辑已在 Skill 文件中定义。
 
 ## 核心工作流
 
@@ -17,10 +17,10 @@ Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+
 ## 目录结构
 
 ```
-.zoom-ai/
+.harnessdesign/
 ├── knowledge/
 │   ├── skills/                    # Skill SOP 文件（Markdown + YAML Frontmatter）
-│   │   ├── zoom-router.md         # 主编排：4 阶段调度 + 状态恢复
+│   │   ├── harnessdesign-router.md         # 主编排：4 阶段调度 + 状态恢复
 │   │   ├── guided-dialogue.md     # 引导式对话协议（跨 Phase 共用）
 │   │   ├── alignment-skill.md     # Phase 1: 上下文对齐
 │   │   ├── research-strategist-skill.md  # Phase 2: 调研 + JTBD
@@ -72,7 +72,7 @@ tasks/<task-name>/                  # 任务工作区（运行时生成）
 
 ### 上下文工程
 - **对话过程是"脚手架"，产出物是"建筑"——脚手架完成使命后拆掉**
-- Phase/场景完成时主动归档对话到 `.zoom-ai/memory/sessions/`
+- Phase/场景完成时主动归档对话到 `.harnessdesign/memory/sessions/`
 - 归档文件必须包含 YAML frontmatter（type, phase, archived_at, token_count, sections, keywords, digest）
 - 锚定层（~6-7k tokens）始终保留：user_intent + 摘要索引 + 当前进度
 - 工作层水位监控：绿区 0-25k、黄区 25-40k、橙区 40-60k、红区 60k+
@@ -88,13 +88,13 @@ tasks/<task-name>/                  # 任务工作区（运行时生成）
 - 子任务完成只回传摘要，试错过程留在局部上下文
 
 ### ZDS 设计系统
-- 生成 HTML 时遵循 `.zoom-ai/knowledge/Design.md` 中的颜色、间距、字体规则
+- 生成 HTML 时遵循 `.harnessdesign/knowledge/Design.md` 中的颜色、间距、字体规则
 - 使用 `[ZDS:xxx]` 标签引用组件，从 `zds-index.md` 选择
 - **禁止使用 Tailwind 预设颜色**——必须使用精确 hex 值
 
 ### Python 脚本
 - 现有脚本在 `scripts/` 目录（hooks 引用）
-- 新脚本在 `.zoom-ai/scripts/` 目录
+- 新脚本在 `.harnessdesign/scripts/` 目录
 - Phase 4 生成 HTML 后必须调用 `validate_html.py` + `cognitive_load_audit.py` 校验
 
 ## 语言

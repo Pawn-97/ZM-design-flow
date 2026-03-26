@@ -60,7 +60,7 @@ allowed_tools:
 ```
 [ACTION] 读取以下文件到锚定层（始终存在于上下文中）：
 1. tasks/<task-name>/confirmed_intent.md（~500 tokens，Phase 1 产出）
-2. .zoom-ai/knowledge/product-context/product-context-index.md（L0，若存在）
+2. .harnessdesign/knowledge/product-context/product-context-index.md（L0，若存在）
 3. 摘要索引（从 task-progress.json.archive_index 重建）
 ```
 
@@ -82,8 +82,8 @@ allowed_tools:
 
 ```
 [ACTION] 对每个已完成场景，读取：
-1. .zoom-ai/memory/sessions/phase3-scenario-{n}.md（场景归档，含 RoundDecision 汇总）
-2. .zoom-ai/memory/sessions/phase3-scenario-{n}-round-{m}.md（各轮次 Recall Buffer，按需）
+1. .harnessdesign/memory/sessions/phase3-scenario-{n}.md（场景归档，含 RoundDecision 汇总）
+2. .harnessdesign/memory/sessions/phase3-scenario-{n}-round-{m}.md（各轮次 Recall Buffer，按需）
 
 从归档中提取 ScenarioContract。
 ```

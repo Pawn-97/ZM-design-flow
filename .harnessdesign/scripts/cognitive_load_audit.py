@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-cognitive_load_audit.py — Cognitive load auditor for Zoom AI-UX Workflow.
+cognitive_load_audit.py — Cognitive load auditor for HarnessDesign AI-UX Workflow.
 
 Reads ux-heuristics.yaml thresholds and audits an HTML prototype for cognitive
 load violations across 5 categories: cognitive_load, dom_structure, interaction,
 visual_hierarchy, edge_states.
 
 Usage:
-    python3 .zoom-ai/scripts/cognitive_load_audit.py <html_file> [--heuristics <yaml_path>]
+    python3 .harnessdesign/scripts/cognitive_load_audit.py <html_file> [--heuristics <yaml_path>]
 
-Default heuristics path: .zoom-ai/knowledge/rules/ux-heuristics.yaml
+Default heuristics path: .harnessdesign/knowledge/rules/ux-heuristics.yaml
 (auto-resolved relative to script location)
 
 Exit codes:

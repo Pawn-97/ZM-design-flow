@@ -1,6 +1,6 @@
 ---
-name: zoom-router
-description: Zoom AI-UX Workflow 主编排 Skill — 四阶段调度、状态恢复、归档回引
+name: harnessdesign-router
+description: HarnessDesign AI-UX Workflow 主编排 Skill — 四阶段调度、状态恢复、归档回引
 user_invocable: true
 allowed_tools:
   - Read
@@ -14,9 +14,9 @@ allowed_tools:
   - WebSearch
 ---
 
-# Zoom AI-UX Workflow — 主编排 Skill (Central Router)
+# HarnessDesign AI-UX Workflow — 主编排 Skill (Central Router)
 
-> **你的角色**：你是 Zoom AI-UX Workflow 的中央调度器。你的唯一职责是根据 `task-progress.json` 的当前状态，加载并执行对应阶段的 Skill SOP。你不直接执行设计工作——你调度 sub-skill 来完成。
+> **你的角色**：你是 HarnessDesign AI-UX Workflow 的中央调度器。你的唯一职责是根据 `task-progress.json` 的当前状态，加载并执行对应阶段的 Skill SOP。你不直接执行设计工作——你调度 sub-skill 来完成。
 
 ---
 
@@ -70,7 +70,7 @@ allowed_tools:
    ```
 
 3. **Onboarding 前置检查**：
-   - 检查 `.zoom-ai/knowledge/product-context/product-context-index.md` 是否存在**且内容有效**
+   - 检查 `.harnessdesign/knowledge/product-context/product-context-index.md` 是否存在**且内容有效**
    - 有效 = 文件存在 + 内容超过 200 字符 + 不包含 "Stub" 或 "placeholder"
    - **不存在或内容无效** → 读取并执行 `onboarding-skill.md`，完成后将 `onboarding.passes` 设为 `true`
    - **存在且内容有效** → 跳过 Onboarding，将 `onboarding.passes` 设为 `true`（标记为已完成）
@@ -172,13 +172,13 @@ onboarding → init → alignment → research_jtbd → interaction_design
 
 | 目标 | 归档文件路径 |
 |------|------------|
-| Phase 1 | `.zoom-ai/memory/sessions/phase1-alignment.md` |
-| Phase 2 调研报告 | `.zoom-ai/memory/sessions/phase2-research.md` |
-| Phase 2 完整调研 | `.zoom-ai/memory/sessions/phase2-research-full.md` |
-| Phase 2 话题 | `.zoom-ai/memory/sessions/phase2-topic-{domain}-{n}.md` |
-| Phase 3 场景 | `.zoom-ai/memory/sessions/phase3-scenario-{n}.md` |
-| Phase 3 场景轮次 | `.zoom-ai/memory/sessions/phase3-scenario-{n}-round-{m}.md` |
-| Phase 4 Review 轮次 | `.zoom-ai/memory/sessions/phase4-review-round-{m}.md` |
+| Phase 1 | `.harnessdesign/memory/sessions/phase1-alignment.md` |
+| Phase 2 调研报告 | `.harnessdesign/memory/sessions/phase2-research.md` |
+| Phase 2 完整调研 | `.harnessdesign/memory/sessions/phase2-research-full.md` |
+| Phase 2 话题 | `.harnessdesign/memory/sessions/phase2-topic-{domain}-{n}.md` |
+| Phase 3 场景 | `.harnessdesign/memory/sessions/phase3-scenario-{n}.md` |
+| Phase 3 场景轮次 | `.harnessdesign/memory/sessions/phase3-scenario-{n}-round-{m}.md` |
+| Phase 4 Review 轮次 | `.harnessdesign/memory/sessions/phase4-review-round-{m}.md` |
 
 ### 4.3 回引粒度
 
@@ -217,15 +217,15 @@ onboarding → init → alignment → research_jtbd → interaction_design
 ```markdown
 ## Session Archive Index
 
-### Phase 1 (对齐): .zoom-ai/memory/sessions/phase1-alignment.md
+### Phase 1 (对齐): .harnessdesign/memory/sessions/phase1-alignment.md
 > [一句话摘要]
 > 🏷️ [关键词:xxx] [约束:xxx]
 
-### Phase 2 (调研+JTBD): .zoom-ai/memory/sessions/phase2-research.md
+### Phase 2 (调研+JTBD): .harnessdesign/memory/sessions/phase2-research.md
 > [一句话摘要]
 > 🏷️ [关键词:xxx] [章节:xxx]
 
-### Phase 3 场景 N: .zoom-ai/memory/sessions/phase3-scenario-{n}.md
+### Phase 3 场景 N: .harnessdesign/memory/sessions/phase3-scenario-{n}.md
 > [选定方案一句话]
 > 🏷️ [约束:xxx] [交互:xxx] [状态:xxx] [依赖:→场景N]
 ```

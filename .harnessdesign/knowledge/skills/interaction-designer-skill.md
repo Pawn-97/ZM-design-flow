@@ -63,7 +63,7 @@ allowed_tools:
 ```
 [ACTION] 读取以下文件到锚定层（始终存在于上下文中）：
 1. tasks/<task-name>/confirmed_intent.md（~500 tokens，Phase 1 产出）
-2. .zoom-ai/knowledge/product-context/product-context-index.md（L0，若存在）
+2. .harnessdesign/knowledge/product-context/product-context-index.md（L0，若存在）
 3. 摘要索引（从 task-progress.json.archive_index 重建）
 ```
 
@@ -72,13 +72,13 @@ allowed_tools:
 ```
 [ACTION] 读取以下文件到工作层：
 1. tasks/<task-name>/01-jtbd.md（完整版，Phase 2 产出）
-2. .zoom-ai/memory/sessions/phase2-insight-cards.md（所有 InsightCards，按需参考）
+2. .harnessdesign/memory/sessions/phase2-insight-cards.md（所有 InsightCards，按需参考）
 ```
 
 ### 1.4 加载 ZDS 组件索引
 
 ```
-[ACTION] 读取 .zoom-ai/knowledge/zds-index.md（L0，~500 tokens）
+[ACTION] 读取 .harnessdesign/knowledge/zds-index.md（L0，~500 tokens）
 此文件在场景方案描述和线框 HTML 中使用 [ZDS:xxx] 标签引用。
 ```
 
@@ -422,7 +422,7 @@ B. 基于你的想法深化 — 你描述你心中的方向，我来细化和落
 ```
 [ACTION] 轮次微压缩——将完整对话 page-out 到磁盘：
 
-写入 .zoom-ai/memory/sessions/phase3-scenario-{n}-round-{m}.md
+写入 .harnessdesign/memory/sessions/phase3-scenario-{n}-round-{m}.md
 
 YAML frontmatter：
 ---
@@ -469,7 +469,7 @@ RoundDecision 卡片是下游 Design Contract 的核心提取源，
 ### 7.1 写入场景归档
 
 ```
-[ACTION] 写入 .zoom-ai/memory/sessions/phase3-scenario-{n}.md
+[ACTION] 写入 .harnessdesign/memory/sessions/phase3-scenario-{n}.md
 
 YAML frontmatter：
 ---
@@ -648,7 +648,7 @@ digest: "<一句话摘要：场景名称 + 选定方案 + 核心决策>"
 
 ```
 [CHECKPOINT] 运行：python3 scripts/validate_transition.py --summary <task_dir>
-按 .zoom-ai/knowledge/rules/phase-summary-cards.md 中的 "Phase 3 → Phase 3→4" 模板
+按 .harnessdesign/knowledge/rules/phase-summary-cards.md 中的 "Phase 3 → Phase 3→4" 模板
 渲染脚本输出为 Phase Summary Card。
 不要自己编造 checklist 项——使用脚本输出。
 ```
@@ -663,8 +663,8 @@ digest: "<一句话摘要：场景名称 + 选定方案 + 核心决策>"
 > 🏷️ [约束:xxx] [约束:xxx] [交互:xxx] [交互:xxx]
 
 ### Phase 3 场景归档索引
-> 场景 1: .zoom-ai/memory/sessions/phase3-scenario-1.md — [digest]
-> 场景 2: .zoom-ai/memory/sessions/phase3-scenario-2.md — [digest]
+> 场景 1: .harnessdesign/memory/sessions/phase3-scenario-1.md — [digest]
+> 场景 2: .harnessdesign/memory/sessions/phase3-scenario-2.md — [digest]
 > ...
 ```
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-verify_archive.py — Archive integrity verifier for Zoom AI-UX Workflow.
+verify_archive.py — Archive integrity verifier for HarnessDesign AI-UX Workflow.
 
 Validates that archive files produced during Context Reset / phase transitions
 contain the required structure, YAML frontmatter, and content.

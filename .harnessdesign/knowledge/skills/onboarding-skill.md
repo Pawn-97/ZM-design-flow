@@ -25,8 +25,8 @@ allowed_tools:
 ### 1.1 触发条件
 
 ```
-[PREREQUISITE] 由 zoom-router 调用
-触发条件：.zoom-ai/knowledge/product-context/product-context-index.md 不存在或内容无效
+[PREREQUISITE] 由 harnessdesign-router 调用
+触发条件：.harnessdesign/knowledge/product-context/product-context-index.md 不存在或内容无效
   无效 = 文件不存在 / 内容少于 200 字符 / 包含 "Stub" 或 "placeholder"
 状态：current_state === "onboarding"（由路由器在 init 阶段检测触发）
 ```
@@ -34,7 +34,7 @@ allowed_tools:
 ### 1.2 目录检查
 
 ```
-[ACTION] 确认目录存在：.zoom-ai/knowledge/product-context/
+[ACTION] 确认目录存在：.harnessdesign/knowledge/product-context/
 若不存在 → 创建目录
 ```
 
@@ -47,7 +47,7 @@ allowed_tools:
 ```
 [OUTPUT]
 
-"欢迎使用 Zoom AI-UX Workflow！
+"欢迎使用 HarnessDesign AI-UX Workflow！
 
 这是你的首次使用，我需要先了解一些产品和行业背景，用来建立知识库。
 这个知识库会在后续每次设计任务中作为背景参考，帮助我更好地理解你的设计上下文。
@@ -113,7 +113,7 @@ allowed_tools:
 
 ### 3.1 产出文件清单
 
-基于设计师回答 + AI 内置知识，生成以下 6 个文件到 `.zoom-ai/knowledge/product-context/`：
+基于设计师回答 + AI 内置知识，生成以下 6 个文件到 `.harnessdesign/knowledge/product-context/`：
 
 | # | 文件名 | 层级 | 说明 | Token 目标 |
 |---|--------|------|------|-----------|
@@ -220,7 +220,7 @@ allowed_tools:
 
 生成完毕后自检：
 - [ ] `product-context-index.md` Token 量 ≤ 800
-- [ ] 6 个文件全部写入 `.zoom-ai/knowledge/product-context/`
+- [ ] 6 个文件全部写入 `.harnessdesign/knowledge/product-context/`
 - [ ] L0 索引中的文件索引表与实际文件一一对应
 - [ ] L1 文件内容基于设计师回答 + AI 知识，没有明显编造
 - [ ] 每个 L1 条目标注了来源（Onboarding / AI 内置知识）
@@ -302,7 +302,7 @@ allowed_tools:
 ```
 [OUTPUT]
 
-"知识库初始化完成！已保存到 .zoom-ai/knowledge/product-context/。
+"知识库初始化完成！已保存到 .harnessdesign/knowledge/product-context/。
 
 这些知识会在后续每个 Task 中自动加载，帮助我更好地理解你的产品背景。
 每次 Task 完成后，新的发现会自动提议补充回知识库。

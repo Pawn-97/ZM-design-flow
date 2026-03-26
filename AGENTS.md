@@ -1,10 +1,10 @@
-# Zoom AI-UX Workflow — Codex 配置
+# HarnessDesign AI-UX Workflow — Codex 配置
 
 ## 项目概述
 
-本项目是一套 **便携式 Skill + Knowledge 目录（`.zoom-ai/`）**，嵌入 AI 编码工具中运行。AI 工具的 Agent 循环就是编排引擎——Skill SOP 文件（Markdown + YAML）引导你按四阶段工作流执行 UX 设计。
+本项目是一套 **便携式 Skill + Knowledge 目录（`.harnessdesign/`）**，嵌入 AI 编码工具中运行。AI 工具的 Agent 循环就是编排引擎——Skill SOP 文件（Markdown + YAML）引导你按四阶段工作流执行 UX 设计。
 
-**你的角色**：按照 `.zoom-ai/knowledge/skills/` 中的 Skill SOP 指令行事。不要自行发明工作流步骤——所有调度逻辑已在 Skill 文件中定义。
+**你的角色**：按照 `.harnessdesign/knowledge/skills/` 中的 Skill SOP 指令行事。不要自行发明工作流步骤——所有调度逻辑已在 Skill 文件中定义。
 
 ## 核心工作流
 
@@ -28,8 +28,8 @@ Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+
 ### `/harnessdesign-start --prd <path>` 详细流程
 
 1. 读取 `AGENTS.md`（本文件）了解全部规则
-2. 读取 `.zoom-ai/knowledge/skills/zoom-router.md` 的 §1.1 了解初始化流程
-3. 按 zoom-router.md 的指令创建任务工作区和 `task-progress.json`
+2. 读取 `.harnessdesign/knowledge/skills/harnessdesign-router.md` 的 §1.1 了解初始化流程
+3. 按 harnessdesign-router.md 的指令创建任务工作区和 `task-progress.json`
 4. 执行 Onboarding 前置检查（检查知识库是否有效）
 5. 按状态机调度逻辑执行工作流
 
@@ -37,7 +37,7 @@ Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+
 
 1. 扫描 `tasks/` 目录，找到包含 `task-progress.json` 的任务工作区
 2. 读取 `task-progress.json`，恢复 `current_state`
-3. 读取 `.zoom-ai/knowledge/skills/zoom-router.md` 的 §6（会话恢复）
+3. 读取 `.harnessdesign/knowledge/skills/harnessdesign-router.md` 的 §6（会话恢复）
 4. 重建锚定层，加载对应 Skill 继续执行
 
 ### `/harnessdesign-status` 详细流程
@@ -48,10 +48,10 @@ Phase 0: Onboarding（首次）→ Phase 1: 上下文对齐 → Phase 2: 调研+
 ### `/harnessdesign-update` 详细流程
 
 1. 运行 `git pull origin main`
-2. 运行 `pip3 install -r .zoom-ai/scripts/requirements.txt`（更新依赖）
-3. 运行 `python3 .zoom-ai/scripts/integration_test.py`（验证完整性）
+2. 运行 `pip3 install -r .harnessdesign/scripts/requirements.txt`（更新依赖）
+3. 运行 `python3 .harnessdesign/scripts/integration_test.py`（验证完整性）
 4. 向设计师报告更新结果：更新了哪些文件、集成测试是否通过
-5. **注意**：更新不会影响 `tasks/` 中已有的任务数据和 `.zoom-ai/memory/` 中的归档
+5. **注意**：更新不会影响 `tasks/` 中已有的任务数据和 `.harnessdesign/memory/` 中的归档
 
 ## ⚠️ Hooks 补偿规则（Codex 必读）
 
@@ -115,7 +115,7 @@ onboarding → init → alignment → research_jtbd → interaction_design
 ## 上下文工程
 
 - **对话过程是"脚手架"，产出物是"建筑"——脚手架完成使命后拆掉**
-- Phase/场景完成时主动归档对话到 `.zoom-ai/memory/sessions/`
+- Phase/场景完成时主动归档对话到 `.harnessdesign/memory/sessions/`
 - 归档文件必须包含 YAML frontmatter（type, phase, archived_at, token_count, sections, keywords, digest）
 - 锚定层（~6-7k tokens）始终保留：user_intent + 摘要索引 + 当前进度
 - 工作层水位监控：绿区 0-25k、黄区 25-40k、橙区 40-60k、红区 60k+
@@ -134,27 +134,27 @@ onboarding → init → alignment → research_jtbd → interaction_design
 
 ## ZDS 设计系统
 
-- 生成 HTML 时遵循 `.zoom-ai/knowledge/Design.md` 中的颜色、间距、字体规则
+- 生成 HTML 时遵循 `.harnessdesign/knowledge/Design.md` 中的颜色、间距、字体规则
 - 使用 `[ZDS:xxx]` 标签引用组件，从 `zds-index.md` 选择
 - **禁止使用 Tailwind 预设颜色**——必须使用精确 hex 值
 
 ## Python 脚本
 
 - 现有脚本在 `scripts/` 目录
-- 新脚本在 `.zoom-ai/scripts/` 目录
+- 新脚本在 `.harnessdesign/scripts/` 目录
 - Phase 4 生成 HTML 后必须调用 `validate_html.py` + `cognitive_load_audit.py` 校验：
   ```bash
-  python3 .zoom-ai/scripts/validate_html.py <html_file_path>
-  python3 .zoom-ai/scripts/cognitive_load_audit.py <html_file_path>
+  python3 .harnessdesign/scripts/validate_html.py <html_file_path>
+  python3 .harnessdesign/scripts/cognitive_load_audit.py <html_file_path>
   ```
 
 ## 目录结构
 
 ```
-.zoom-ai/
+.harnessdesign/
 ├── knowledge/
 │   ├── skills/                    # Skill SOP 文件（核心）
-│   │   ├── zoom-router.md         # 主编排：4 阶段调度 + 状态恢复
+│   │   ├── harnessdesign-router.md         # 主编排：4 阶段调度 + 状态恢复
 │   │   ├── guided-dialogue.md     # 引导式对话协议（跨 Phase 共用）
 │   │   ├── alignment-skill.md     # Phase 1: 上下文对齐
 │   │   ├── research-strategist-skill.md  # Phase 2: 调研 + JTBD

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-validate_html.py — HTML structure & ZDS compliance validator for Zoom AI-UX Workflow.
+validate_html.py — HTML structure & ZDS compliance validator for HarnessDesign AI-UX Workflow.
 
 Checks 6 validation items corresponding to the Alchemist Skill's validation checklist:
 1. HTML syntax correctness
@@ -11,7 +11,7 @@ Checks 6 validation items corresponding to the Alchemist Skill's validation chec
 6. Empty states (lists/tables have empty state handling)
 
 Usage:
-    python3 .zoom-ai/scripts/validate_html.py <html_file> [--contract <design_contract_path>]
+    python3 .harnessdesign/scripts/validate_html.py <html_file> [--contract <design_contract_path>]
 
 Exit codes:
     0 = all checks passed

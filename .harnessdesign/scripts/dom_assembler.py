@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-dom_assembler.py — Deterministic DOM surgery tool for Zoom AI-UX Workflow.
+dom_assembler.py — Deterministic DOM surgery tool for HarnessDesign AI-UX Workflow.
 
 Receives JSON operation instructions and executes structural modifications on
 an HTML file using BeautifulSoup. Supports: remove, insert, update, replace.
@@ -9,7 +9,7 @@ Used by the Alchemist Skill (Phase 4) review feedback loop to apply precise
 DOM patches without regenerating the entire HTML.
 
 Usage:
-    python3 .zoom-ai/scripts/dom_assembler.py <html_file> <operations_json>
+    python3 .harnessdesign/scripts/dom_assembler.py <html_file> <operations_json>
 
     operations_json can be:
     - A file path to a JSON file

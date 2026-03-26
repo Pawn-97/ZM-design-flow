@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-validate_transition.py — Deterministic state transition validator for Zoom AI-UX Workflow.
+validate_transition.py — Deterministic state transition validator for HarnessDesign AI-UX Workflow.
 
 Checks pre-conditions before allowing phase/state transitions.
 Called by Claude Code Hooks (PreToolUse) or directly by Skill SOP instructions.
@@ -31,7 +31,7 @@ from datetime import datetime
 TRANSITIONS = {
     "onboarding": {
         "requires_files": [
-            ".zoom-ai/knowledge/product-context/product-context-index.md"
+            ".harnessdesign/knowledge/product-context/product-context-index.md"
         ],
         "requires_approval": True,
         "next": "init",
@@ -115,10 +115,10 @@ def get_states(progress: dict) -> dict:
 
 
 def find_project_root(task_dir: str) -> str:
-    """Walk up from task_dir to find the project root (contains .zoom-ai/ or CLAUDE.md)."""
+    """Walk up from task_dir to find the project root (contains .harnessdesign/ or CLAUDE.md)."""
     d = os.path.abspath(task_dir)
     while d and d != os.path.dirname(d):
-        if os.path.isdir(os.path.join(d, ".zoom-ai")) or os.path.isfile(os.path.join(d, "CLAUDE.md")):
+        if os.path.isdir(os.path.join(d, ".harnessdesign")) or os.path.isfile(os.path.join(d, "CLAUDE.md")):
             return d
         d = os.path.dirname(d)
     # Fallback: two levels up from task dir (tasks/<name>/ → project root)
@@ -296,7 +296,7 @@ def generate_summary(task_dir: str) -> dict:
 
     # Archive checks (look for expected archive files)
     archive_dir = os.path.join(
-        os.path.dirname(task_dir), ".zoom-ai", "memory", "sessions"
+        os.path.dirname(task_dir), ".harnessdesign", "memory", "sessions"
     )
     if os.path.isdir(archive_dir):
         archive_count = len(

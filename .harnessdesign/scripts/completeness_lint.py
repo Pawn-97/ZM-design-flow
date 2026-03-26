@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-completeness_lint.py — DesignContract completeness linter for Zoom AI-UX Workflow.
+completeness_lint.py — DesignContract completeness linter for HarnessDesign AI-UX Workflow.
 
 Verifies that an HTML prototype covers all requirements specified in the
 DesignContract (03-design-contract.md):
@@ -12,7 +12,7 @@ DesignContract (03-design-contract.md):
 6. Interactive states — hover/focus/disabled CSS rules
 
 Usage:
-    python3 .zoom-ai/scripts/completeness_lint.py <html_file> <design_contract_path>
+    python3 .harnessdesign/scripts/completeness_lint.py <html_file> <design_contract_path>
 
 Exit codes:
     0 = all checks passed

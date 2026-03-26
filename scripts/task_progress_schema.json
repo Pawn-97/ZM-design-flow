@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "task-progress.json Schema for Zoom AI-UX Workflow",
+  "title": "task-progress.json Schema for HarnessDesign AI-UX Workflow",
   "description": "State machine credential file. AI reads this before every action to restore context. Scripts validate transitions against this structure.",
   "type": "object",
   "required": ["task_name", "current_state", "expected_next_state", "states"],

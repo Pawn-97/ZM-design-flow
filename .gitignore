@@ -16,14 +16,14 @@ venv/
 
 # Onboarding knowledge base (team-specific, generated per-team)
 # Uncomment the line below if each team should generate their own:
-# .zoom-ai/knowledge/product-context/*.md
+# .harnessdesign/knowledge/product-context/*.md
 # Keep .gitkeep files
-!.zoom-ai/knowledge/product-context/.gitkeep
+!.harnessdesign/knowledge/product-context/.gitkeep
 
 # Session archives (conversation-specific)
-.zoom-ai/memory/sessions/*.md
-!.zoom-ai/memory/sessions/.gitkeep
+.harnessdesign/memory/sessions/*.md
+!.harnessdesign/memory/sessions/.gitkeep
 
 # Constraint memories (conversation-specific)
-.zoom-ai/memory/constraints/*.md
-!.zoom-ai/memory/constraints/.gitkeep
+.harnessdesign/memory/constraints/*.md
+!.harnessdesign/memory/constraints/.gitkeep

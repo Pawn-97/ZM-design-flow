@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-dom_extractor.py — DOM structure extractor for Zoom AI-UX Workflow.
+dom_extractor.py — DOM structure extractor for HarnessDesign AI-UX Workflow.
 
 Parses an HTML file and outputs a structured JSON representation of the DOM,
 including scenario detection, interactive elements, navigation links, forms,
@@ -10,7 +10,7 @@ Used as a base module by validate_html.py, cognitive_load_audit.py, and
 completeness_lint.py.
 
 Usage:
-    python3 .zoom-ai/scripts/dom_extractor.py <html_file>
+    python3 .harnessdesign/scripts/dom_extractor.py <html_file>
 
 Exit codes:
     0 = extraction succeeded
@@ -26,7 +26,7 @@ import sys
 from bs4 import BeautifulSoup, Comment
 
 # ---------------------------------------------------------------------------
-# ZDS allowed colors (from .zoom-ai/knowledge/Design.md)
+# ZDS allowed colors (from .harnessdesign/knowledge/Design.md)
 # ---------------------------------------------------------------------------
 
 ZDS_ALLOWED_COLORS = {

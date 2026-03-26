@@ -35,7 +35,7 @@ allowed_tools:
 ### 1.2 知识库存在性检查
 
 ```
-[ACTION] 检查 .zoom-ai/knowledge/product-context/product-context-index.md 是否存在
+[ACTION] 检查 .harnessdesign/knowledge/product-context/product-context-index.md 是否存在
 若不存在 → 警告设计师："知识库未初始化（Onboarding 未执行）。
   知识提取需要目标文件才能写入。是否现在执行 Onboarding？"
   - 设计师同意 → 提示路由器先执行 onboarding-skill.md
@@ -61,9 +61,9 @@ allowed_tools:
 
 选读（存在则读取）：
   5. tasks/<task-name>/00-research.md                 — 调研报告
-  6. .zoom-ai/memory/sessions/phase2-insight-cards.md — InsightCard 合集
+  6. .harnessdesign/memory/sessions/phase2-insight-cards.md — InsightCard 合集
   7. task-progress.json 中的 accumulated_constraints  — 累积约束列表
-  8. .zoom-ai/memory/sessions/phase3-scenario-*.md    — 场景归档（按需，仅读取 RoundDecision 部分）
+  8. .harnessdesign/memory/sessions/phase3-scenario-*.md    — 场景归档（按需，仅读取 RoundDecision 部分）
 ```
 
 ### 2.2 Token 预算
@@ -260,7 +260,7 @@ allowed_tools:
 ### 6.2 归档 Task 完成摘要
 
 ```
-[ACTION] 在 .zoom-ai/memory/sessions/ 中写入 task-complete-<task-name>.md：
+[ACTION] 在 .harnessdesign/memory/sessions/ 中写入 task-complete-<task-name>.md：
 
 ---
 type: task_complete

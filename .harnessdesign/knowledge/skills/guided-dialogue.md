@@ -168,7 +168,7 @@ B. 基于你的想法深化 — 你描述你心中的方向，我来细化和落
 
 - `/recall list` — 浏览所有可回引归档
 - `/recall phase2 --query "空状态"` — 精准回引
-- 详见 `zoom-router.md` §4
+- 详见 `harnessdesign-router.md` §4
 
 ---
 
@@ -201,7 +201,7 @@ L3 紧急熔断 190k ──────────── 最后防线
 
 ## 7. 归档文件 YAML Frontmatter 规范
 
-所有归档到 `.zoom-ai/memory/sessions/` 的文件必须包含以下 frontmatter：
+所有归档到 `.harnessdesign/memory/sessions/` 的文件必须包含以下 frontmatter：
 
 ```yaml
 ---

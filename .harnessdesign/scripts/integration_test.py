@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-integration_test.py — End-to-end static consistency checker for Zoom AI-UX Workflow.
+integration_test.py — End-to-end static consistency checker for HarnessDesign AI-UX Workflow.
 
 Validates that all components (state machine, skills, scripts, assets, directories)
 are consistent and complete WITHOUT running the actual workflow.
 
 Usage:
-    python3 .zoom-ai/scripts/integration_test.py
+    python3 .harnessdesign/scripts/integration_test.py
 
 Exit codes:
     0 = all checks passed
@@ -26,9 +26,9 @@ import shutil
 # ---------------------------------------------------------------------------
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # .zoom-ai/scripts/ → project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # .harnessdesign/scripts/ → project root
 
-# MVP state chain (source of truth: zoom-router.md §2.1)
+# MVP state chain (source of truth: harnessdesign-router.md §2.1)
 MVP_STATE_CHAIN = [
     "onboarding", "init", "alignment", "research_jtbd", "interaction_design",
     "prepare_design_contract", "contract_review", "hifi_generation",
@@ -40,7 +40,7 @@ RESERVED_STATES = ["logic_inquisitor", "baseline_validation"]
 
 # Expected skill files and their router mappings
 EXPECTED_SKILLS = {
-    "zoom-router.md": "Central router",
+    "harnessdesign-router.md": "Central router",
     "guided-dialogue.md": "Dialogue protocol",
     "alignment-skill.md": "Phase 1: alignment",
     "research-strategist-skill.md": "Phase 2: research + JTBD",
@@ -52,7 +52,7 @@ EXPECTED_SKILLS = {
 }
 
 # Expected Python scripts
-EXPECTED_ZOOM_SCRIPTS = [
+EXPECTED_HD_SCRIPTS = [
     "validate_html.py",
     "cognitive_load_audit.py",
     "dom_assembler.py",
@@ -71,13 +71,13 @@ EXPECTED_ROOT_SCRIPTS = [
 
 # Expected directories
 EXPECTED_DIRS = [
-    ".zoom-ai/knowledge/skills",
-    ".zoom-ai/knowledge/product-context",
-    ".zoom-ai/knowledge/rules",
-    ".zoom-ai/knowledge/zds/components",
-    ".zoom-ai/memory/sessions",
-    ".zoom-ai/memory/constraints",
-    ".zoom-ai/scripts",
+    ".harnessdesign/knowledge/skills",
+    ".harnessdesign/knowledge/product-context",
+    ".harnessdesign/knowledge/rules",
+    ".harnessdesign/knowledge/zds/components",
+    ".harnessdesign/memory/sessions",
+    ".harnessdesign/memory/constraints",
+    ".harnessdesign/scripts",
     "scripts",
 ]
 
@@ -191,7 +191,7 @@ def test_state_machine_consistency(r: TestResult):
     # 1c. Check schema uses 'states' not 'gates'
     required = schema.get("required", [])
     if "states" in required:
-        r.ok("Schema uses 'states' key (aligned with zoom-router)")
+        r.ok("Schema uses 'states' key (aligned with harnessdesign-router)")
     elif "gates" in required:
         r.fail("Schema still uses 'gates' key — should be 'states'")
     else:
@@ -205,8 +205,8 @@ def test_state_machine_consistency(r: TestResult):
         else:
             r.fail(f"Schema missing field: {field}")
 
-    # 1e. Parse zoom-router.md state chain
-    router_path = p(".zoom-ai", "knowledge", "skills", "zoom-router.md")
+    # 1e. Parse harnessdesign-router.md state chain
+    router_path = p(".harnessdesign", "knowledge", "skills", "harnessdesign-router.md")
     if os.path.isfile(router_path):
         with open(router_path, "r", encoding="utf-8") as f:
             router_content = f.read()
@@ -218,11 +218,11 @@ def test_state_machine_consistency(r: TestResult):
             router_content,
         )
         if chain_match:
-            r.ok("zoom-router.md state chain matches MVP")
+            r.ok("harnessdesign-router.md state chain matches MVP")
         else:
-            r.warn("Could not parse state chain from zoom-router.md §2.1 — verify manually")
+            r.warn("Could not parse state chain from harnessdesign-router.md §2.1 — verify manually")
     else:
-        r.fail("zoom-router.md not found")
+        r.fail("harnessdesign-router.md not found")
 
 
 # ---------------------------------------------------------------------------
@@ -232,7 +232,7 @@ def test_state_machine_consistency(r: TestResult):
 def test_skill_files(r: TestResult):
     r.section("2. Skill File Completeness")
 
-    skills_dir = p(".zoom-ai", "knowledge", "skills")
+    skills_dir = p(".harnessdesign", "knowledge", "skills")
     if not os.path.isdir(skills_dir):
         r.fail(f"Skills directory not found: {skills_dir}")
         return
@@ -275,9 +275,9 @@ def test_skill_files(r: TestResult):
 def test_python_scripts(r: TestResult):
     r.section("3. Python Script Availability")
 
-    # .zoom-ai/scripts/
-    for script in EXPECTED_ZOOM_SCRIPTS:
-        filepath = p(".zoom-ai", "scripts", script)
+    # .harnessdesign/scripts/
+    for script in EXPECTED_HD_SCRIPTS:
+        filepath = p(".harnessdesign", "scripts", script)
         if os.path.isfile(filepath):
             if script.endswith(".py"):
                 # Check syntax by compiling
@@ -285,13 +285,13 @@ def test_python_scripts(r: TestResult):
                     with open(filepath, "r", encoding="utf-8") as f:
                         source = f.read()
                     ast.parse(source)
-                    r.ok(f".zoom-ai/scripts/{script} (syntax OK)")
+                    r.ok(f".harnessdesign/scripts/{script} (syntax OK)")
                 except SyntaxError as e:
-                    r.fail(f".zoom-ai/scripts/{script}: syntax error at line {e.lineno}: {e.msg}")
+                    r.fail(f".harnessdesign/scripts/{script}: syntax error at line {e.lineno}: {e.msg}")
             else:
-                r.ok(f".zoom-ai/scripts/{script}")
+                r.ok(f".harnessdesign/scripts/{script}")
         else:
-            r.fail(f"Missing: .zoom-ai/scripts/{script}")
+            r.fail(f"Missing: .harnessdesign/scripts/{script}")
 
     # scripts/
     for script in EXPECTED_ROOT_SCRIPTS:
@@ -319,7 +319,7 @@ def test_zds_assets(r: TestResult):
     r.section("4. ZDS Asset Completeness")
 
     # Design.md
-    design_path = p(".zoom-ai", "knowledge", "Design.md")
+    design_path = p(".harnessdesign", "knowledge", "Design.md")
     if os.path.isfile(design_path):
         with open(design_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -331,14 +331,14 @@ def test_zds_assets(r: TestResult):
         r.fail("Design.md not found")
 
     # zds-index.md
-    index_path = p(".zoom-ai", "knowledge", "zds-index.md")
+    index_path = p(".harnessdesign", "knowledge", "zds-index.md")
     if os.path.isfile(index_path):
         r.ok("zds-index.md exists")
     else:
         r.fail("zds-index.md not found")
 
     # Component specs
-    components_dir = p(".zoom-ai", "knowledge", "zds", "components")
+    components_dir = p(".harnessdesign", "knowledge", "zds", "components")
     if os.path.isdir(components_dir):
         specs = [f for f in os.listdir(components_dir) if f.endswith(".md")]
         if len(specs) >= 5:
@@ -370,7 +370,7 @@ def test_directories(r: TestResult):
         r.fail("CLAUDE.md not found")
 
     # ux-heuristics.yaml
-    heuristics = p(".zoom-ai", "knowledge", "rules", "ux-heuristics.yaml")
+    heuristics = p(".harnessdesign", "knowledge", "rules", "ux-heuristics.yaml")
     if os.path.isfile(heuristics):
         r.ok("ux-heuristics.yaml exists")
     else:
@@ -388,7 +388,7 @@ def test_state_chain_simulation(r: TestResult):
     # can find project-level artifacts via os.path.dirname(task_dir))
     tasks_dir = p("tasks")
     os.makedirs(tasks_dir, exist_ok=True)
-    tmp_dir = tempfile.mkdtemp(prefix="zoom-test-", dir=tasks_dir)
+    tmp_dir = tempfile.mkdtemp(prefix="hd-test-", dir=tasks_dir)
 
     try:
         # Import validate_transition
@@ -397,7 +397,7 @@ def test_state_chain_simulation(r: TestResult):
         vt_mod = importlib.import_module("validate_transition")
         importlib.reload(vt_mod)
 
-        # Build initial task-progress.json (from zoom-router §1.1)
+        # Build initial task-progress.json (from harnessdesign-router §1.1)
         states = {}
         for state in MVP_STATE_CHAIN:
             states[state] = {
@@ -427,7 +427,7 @@ def test_state_chain_simulation(r: TestResult):
         # Create required artifact stubs for each state
         artifact_stubs = {
             "onboarding": [
-                (p(".zoom-ai", "knowledge", "product-context", "product-context-index.md"),
+                (p(".harnessdesign", "knowledge", "product-context", "product-context-index.md"),
                  "# Product Context\nStub for testing.")
             ],
             "alignment": [
@@ -526,7 +526,7 @@ def test_state_chain_simulation(r: TestResult):
 def main():
     r = TestResult()
 
-    print("Zoom AI-UX Workflow — Integration Test Suite")
+    print("HarnessDesign AI-UX Workflow — Integration Test Suite")
     print(f"Project root: {PROJECT_ROOT}\n")
 
     test_state_machine_consistency(r)

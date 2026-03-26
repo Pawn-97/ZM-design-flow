@@ -41,7 +41,7 @@ allowed_tools:
 ### 1.3 知识库加载（条件性）
 
 ```
-[ACTION] 检查 .zoom-ai/knowledge/product-context/product-context-index.md 是否存在
+[ACTION] 检查 .harnessdesign/knowledge/product-context/product-context-index.md 是否存在
 
 若存在：
   1. 读取 product-context-index.md（L0，~500-800 tokens）→ 注入锚定层
@@ -237,14 +237,14 @@ allowed_tools:
 
 ```
 [CHECKPOINT] 运行：python3 scripts/validate_transition.py --summary <task_dir>
-按 .zoom-ai/knowledge/rules/phase-summary-cards.md 中的 "Phase 1 → Phase 2" 模板
+按 .harnessdesign/knowledge/rules/phase-summary-cards.md 中的 "Phase 1 → Phase 2" 模板
 渲染脚本输出为 Phase Summary Card。
 不要自己编造 checklist 项——使用脚本输出。
 ```
 
 ### 6.2 归档对话
 
-将 Phase 1 完整对话归档到 `.zoom-ai/memory/sessions/phase1-alignment.md`：
+将 Phase 1 完整对话归档到 `.harnessdesign/memory/sessions/phase1-alignment.md`：
 
 ```yaml
 ---
@@ -282,7 +282,7 @@ digest: "<一句话摘要：设计师要做什么，核心约束是什么>"
 在锚定层的 Session Archive Index 中添加 Phase 1 条目：
 
 ```markdown
-### Phase 1 (对齐): .zoom-ai/memory/sessions/phase1-alignment.md
+### Phase 1 (对齐): .harnessdesign/memory/sessions/phase1-alignment.md
 > [digest 内容]
 > 🏷️ [关键词:xxx] [关键词:xxx] [约束:xxx]
 ```
