@@ -75,7 +75,7 @@ python3 --version
 把下面这行命令**整行**复制粘贴到终端，把末尾的路径换成你想要的**目标文件夹**：
 
 ```
-curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- ~/Desktop/my-design-workspace
+curl -fsSL https://raw.githubusercontent.com/Pawn-97/harnessurdesign-UX-flow/main/install.sh | bash -s -- /Desktop/my-design-workspace
 ```
 
 你可以选择任何你喜欢的文件夹位置和名称。**举几个例子**：
