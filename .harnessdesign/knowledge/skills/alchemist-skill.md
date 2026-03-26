@@ -101,44 +101,76 @@ allowed_tools:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>[Task Name] - HarnessDesign AI-UX Prototype</title>
 
-  <!-- Lato 字体 -->
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- SF Pro 字体（Prism 设计系统标准字体） -->
+  <!-- SF Pro 为 Apple 系统字体，通过 system font stack 引用 -->
 
   <!-- Tailwind CDN（仅用 layout utility，颜色用 CSS 变量） -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ===== ZDS CSS 变量声明（必须） ===== */
+    /* ===== Prism Design System CSS 变量声明（必须） ===== */
     :root {
-      --zds-blue: #0B5CFF;
-      --zds-blue-hover: #0047CC;
-      --zds-blue-light: #EBF0FF;
-      --zds-red: #E02D3C;
-      --zds-green: #12805C;
-      --zds-yellow: #F5A623;
-      --zds-text-1: #232333;
-      --zds-text-2: #3E3E4F;
-      --zds-text-3: #6E6E7E;
-      --zds-text-4: #ACACB9;
-      --zds-bg: #F7F8FA;
-      --zds-bg-card: #FFFFFF;
-      --zds-border: #E8E8ED;
-      --zds-hover: #F0F0F5;
+      /* Background */
+      --background\/bg-default: #FFFFFF;
+      --background\/bg-darker-neutral: #F1F4F6;
+
+      /* Fill */
+      --fill\/fill-global-primary: #0D6BDE;
+      --fill\/fill-primary: #0D6BDE;
+      --fill\/fill-default: #FFFFFF;
+      --fill\/fill-elevated-strongest: #FFFFFF;
+      --fill\/fill-elevated-strong: rgba(255,255,255,0.8);
+      --fill\/fill-subtle-neutral: #F1F4F6;
+      --fill\/fill-subtler-neutral: #F7F9FA;
+      --fill\/fill-subtler-primary: #F2F8FF;
+      --fill\/fill-contrary-subtler-transparent: rgba(0,0,0,0.04);
+
+      /* Text */
+      --text\/text-stronger-neutral: #222325;
+      --text\/text-neutral: #686F79;
+      --text\/text-primary: #0D6BDE;
+      --text\/text-strong-primary: #2057B1;
+      --inverse\/inverse-global-default: #FFFFFF;
+
+      /* Border */
+      --border\/border-subtle-neutral: #DFE3E8;
+      --border\/border-strong-neutral: #555B62;
+      --border\/border-subtle-primary: #A8CCF8;
+      --component\/input\/input-border: #C1C6CE;
+
+      /* Semantic — Error/Warning/Success */
+      --fill\/fill-error: #DA1639;
+      --fill\/fill-success: #247F40;
+      --fill\/fill-warning: #B36200;
+
+      /* Shadow */
+      --underlay\/dropshadow: rgba(0,0,0,0.08);
+
+      /* Font */
+      --font\/font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font\/font-weight-regular: 400;
+      --font\/font-weight-medium: 500;
+      --font\/font-weight-semibold: 590;
+      --font\/font-weight-bold: 700;
+      --font\/font-letterSpacing-14: -0.15px;
+      --font\/font-letterSpacing-16: -0.31px;
+      --font\/font-letterSpacing-20: -0.45px;
     }
 
     /* ===== 全局样式 ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: var(--zds-text-1);
-      background: var(--zds-bg);
+      font-family: var(--font\/font-family);
+      color: var(--text\/text-stronger-neutral);
+      background: var(--background\/bg-default);
       font-size: 14px;
-      line-height: 20px;
+      line-height: 18px;
+      letter-spacing: var(--font\/font-letterSpacing-14);
     }
 
-    /* ===== ZDS 组件样式（按 Design.md 规范） ===== */
+    /* ===== Prism 组件样式（按 Design.md 规范） ===== */
     /* 所有颜色使用 CSS 变量，不使用 Tailwind 预设色板 */
-    /* 间距仅使用 4px 网格倍数：2, 4, 8, 12, 16, 24, 32, 48px */
+    /* 间距使用 4px 基准网格：2, 4, 6, 8, 12, 14, 16, 24, 32px */
 
     /* 场景容器 */
     .scenario-container { display: none; }
@@ -175,39 +207,42 @@ allowed_tools:
 </html>
 ```
 
-### 2.2 ZDS 合规规则（必须严格遵守）
+### 2.2 Prism 合规规则（必须严格遵守）
 
 **颜色**：
 - **禁止** Tailwind 预设色板（如 `blue-500`, `gray-200`）
 - **禁止**自创色值
-- **必须**使用 Design.md §1 中的精确 hex 值
-- 在 Tailwind 中使用任意值语法：`bg-[#0B5CFF]`, `text-[#232333]` 等
-- CSS 变量引用优先：`color: var(--zds-text-1)` 或 `bg-[var(--zds-blue)]`
+- **必须**使用 Design.md §2.1 中的语义 CSS 变量
+- CSS 变量引用优先：`color: var(--text/text-stronger-neutral)` 或 `bg-[var(--fill/fill-global-primary)]`
+- Fallback 仅在 CSS 变量不可用时使用精确 hex 值
 
 **间距**：
-- **仅允许** 4px 网格倍数：2px, 4px, 8px, 12px, 16px, 24px, 32px, 48px
-- Tailwind 对应：`p-0.5`, `p-1`, `p-2`, `p-3`, `p-4`, `p-6`, `p-8`, `p-12`
-- **禁止**：`p-5`, `p-7`, `p-9`, `p-10`, `p-11` 等非标值
+- 基于 4px 基准网格：2px, 4px, 6px, 8px, 12px, 14px, 16px, 24px, 32px
+- Tailwind 任意值语法：`p-[6px]`, `p-[12px]`, `p-[14px]`, `gap-[8px]` 等
+- 参考 Design.md §2.3 各组件的具体间距值
 
 **字体**：
-- 字体族：`'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-- 字体阶梯严格按 Design.md §3：28px/24px/18px/16px/14px/12px
-- 字重：Bold(700)/Semibold(600)/Medium(500)/Regular(400)
+- 字体族：SF Pro（通过 `var(--font/font-family)` 引用）
+- 字体阶梯严格按 Design.md §2.2：20px(title)/14px(body)/14px(paragraph)
+- 字重：Bold(700)/Semibold(590)/Medium(500)/Regular(400)
+- Letter spacing：14px→`-0.15px`, 16px→`-0.31px`, 20px→`-0.45px`
 
-**圆角**：按 Design.md §4——按钮 8px、卡片 12px、弹窗 16px、头像 50%
+**圆角**：按 Design.md §2.4——Dialog 32px、Notification 16px、Button/Input 12px、Pill 999px、Avatar 99px
 
-**阴影**：Level 1 `shadow-sm`、Level 2 `shadow-md`、Level 3 `shadow-lg`
+**阴影**：dropShadow-md（Notification/Dialog）、dropShadow-sm（Segmented control）
 
-**布局**：
-- 页面最大宽度 1280px（`max-w-screen-xl mx-auto`）
-- 侧边栏 240px / 折叠 64px
-- 顶部导航 56px（`h-14`）
-- 内容区内边距 24px（`p-6`）
+**布局**（Admin Portal）：
+- 视口 1920×1080px
+- Top Bar 64px
+- 1st Nav 280px（展开）/ 56px（折叠）
+- 2nd Nav 220px
+- 内容区边距 32px
+- 详见 Design.md §10
 
-**交互**：
-- 过渡时长 150ms（`transition-all duration-150`）
-- Focus 态：`focus:ring-2 focus:ring-[#0B5CFF] focus:ring-offset-2`
-- Disabled 态：`opacity-50 cursor-not-allowed`
+**交互**（5 态）：
+- Default / Hover / Pressed / Focused / Disabled
+- Focus 态：`var(--color/border/brand)` focus ring
+- Disabled 态：`opacity-[0.4-0.5] pointer-events-none`
 
 ### 2.3 生成原则
 
