@@ -135,6 +135,23 @@ Possible responses:
 - Add scenarios → append to list, re-present
 ```
 
+```
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "场景列表是否确认？"
+  header: "场景确认"
+  options:
+    - label: "✅ 确认"
+      description: "场景拆分合理，开始逐场景设计"
+    - label: "✏️ 调整场景"
+      description: "需要修改现有场景的范围或描述"
+    - label: "➕ 新增场景"
+      description: "还有遗漏的场景需要补充"
+  multiSelect: false
+
+If designer selects "✏️ 调整场景" or "➕ 新增场景" → follow up with natural language
+```
+
 ### 2.4 Initialize Scenario Tracking
 
 ```
@@ -329,6 +346,25 @@ Possible responses:
 - Partially satisfied + modification feedback → §5.3 Feedback Loop
 - Unsatisfied with all → §5.4 Full Rejection Handling
 - Expand unexplored paradigm → return to §3.3 to generate a full option for the new direction
+```
+
+```
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "[Scenario Name]: 哪个方案更接近你的期望？"
+  header: "方案选择"
+  options:
+    - label: "Option A"
+      description: "[Brief description of Option A's approach]"
+    - label: "Option B"
+      description: "[Brief description of Option B's approach]"
+    - label: "✏️ 部分修改"
+      description: "某个方案的部分元素好，但需要调整"
+    - label: "🔄 换方向"
+      description: "都不满意，我想描述新的方向"
+  multiSelect: false
+
+If designer selects "✏️ 部分修改" or "🔄 换方向" → follow up with natural language
 ```
 
 ### 5.2 RoundDecision Extraction

@@ -434,6 +434,24 @@ Possible responses:
 - Direct file edit → Re-read the file to confirm changes, update summary index
 ```
 
+```
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "Design Contract 是否可以作为 Phase 4 的蓝图？"
+  header: "合约审批"
+  options:
+    - label: "✅ 通过"
+      description: "合约完整准确，进入高保真生成"
+    - label: "✏️ 反馈修改"
+      description: "有需要调整的地方，我会说明"
+    - label: "📝 直接编辑文件"
+      description: "我想直接修改 03-design-contract.md 文件"
+  multiSelect: false
+
+If designer selects "✏️ 反馈修改" → follow up with natural language
+If designer selects "📝 直接编辑文件" → wait for designer to finish editing, then re-read the file
+```
+
 ### 7.3 Post-Confirmation Transition
 
 ```

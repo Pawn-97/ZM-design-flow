@@ -179,6 +179,23 @@ Processing rules:
 After designer confirms → proceed to §5 Write
 ```
 
+```
+[DECISION POINT — STRUCTURED]
+For each knowledge entry (batch up to 4 at a time), use AskUserQuestion:
+  question: "知识条目: [entry title] — [one-line summary]"
+  header: "知识确认"
+  options:
+    - label: "✅ 确认"
+      description: "添加到知识库"
+    - label: "✏️ 修改"
+      description: "内容需要调整"
+    - label: "⏭️ 跳过"
+      description: "不添加到知识库"
+  multiSelect: false
+
+If "✏️ 修改" → follow up with natural language to collect the modification
+```
+
 ---
 
 ## 5. Knowledge Base Write

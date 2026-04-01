@@ -255,6 +255,21 @@ Please check:
 3. Is the competitive analysis roughly accurate?
 
 You can point out anything that needs to be changed, or confirm it's good to go."
+
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "知识库内容是否准确？"
+  header: "KB 审批"
+  options:
+    - label: "✅ 通过"
+      description: "内容准确，继续下一步"
+    - label: "✏️ 指出需修改的部分"
+      description: "大方向对但有细节需要调整"
+    - label: "🔄 补充信息"
+      description: "我还有额外信息要补充"
+  multiSelect: false
+
+If designer selects "✏️ 指出需修改的部分" or "🔄 补充信息" → follow up with natural language
 ```
 
 ### 4.2 Handle Feedback

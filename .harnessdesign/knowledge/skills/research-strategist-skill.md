@@ -202,6 +202,21 @@ After designer confirms:
   - ✏️ items → Append with designer's edited content
   - ⏭️ items → Skip
   - Update product-context-index.md (L0) to reflect additions
+
+[DECISION POINT — STRUCTURED]
+For each knowledge entry (batch up to 4 at a time), use AskUserQuestion:
+  question: "知识条目: [entry title] — [one-line summary]"
+  header: "KB 更新"
+  options:
+    - label: "✅ 确认"
+      description: "添加到知识库"
+    - label: "✏️ 修改"
+      description: "内容需要调整"
+    - label: "⏭️ 跳过"
+      description: "不添加到知识库"
+  multiSelect: false
+
+If "✏️ 修改" → follow up with natural language to collect the modification
 ```
 
 If no incremental information, silently skip this step.
@@ -595,6 +610,21 @@ Possible responses:
   Merge feedback with current JTBD + InsightCards, update file and re-present
   Simple retry is strictly prohibited — must use structured merging
 - Continue diverging → return to Stage C, open new topic round
+
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "JTBD 分析是否可以收敛？"
+  header: "JTBD 确认"
+  options:
+    - label: "✅ 确认收敛"
+      description: "JTBD 分析完整，进入下一阶段"
+    - label: "✏️ 需要修改"
+      description: "部分 JTBD 需要调整"
+    - label: "🔄 继续发散"
+      description: "还有未探索的方向"
+  multiSelect: false
+
+If designer selects "✏️ 需要修改" or "🔄 继续发散" → follow up with natural language
 ```
 
 ### 7.2 Phase Summary Card

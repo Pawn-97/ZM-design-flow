@@ -241,3 +241,53 @@ Self-check before every conversation with the designer:
 - [ ] Is there a recall intent in the designer's message?
 - [ ] Are the questions I'm asking at the "problem understanding" level or the "solution" level? Have solution-level questions been deferred to Phase 3?
 - [ ] Have I reached a `[STOP]` control point? If so, wait for confirmation.
+- [ ] Is this `[STOP]` point a structurable decision? If yes, use `AskUserQuestion` per §9 below.
+
+---
+
+## 9. Structured Decision Protocol
+
+When arriving at a `[STOP AND WAIT]` or `[STOP AND WAIT FOR APPROVAL]` control point, choose the interaction method based on the following rules:
+
+### 9.1 Rule 1: Enumerable Decisions → Use `AskUserQuestion`
+
+If the designer's choice can be summarized as 2-4 distinct options, use the `AskUserQuestion` tool.
+
+**Indicators**: binary confirmation, selection from a known set, approval/reject/modify, direction choice.
+
+**Format**:
+```
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "<specific question in Chinese>"
+  header: "<short label, max 12 chars>"
+  options:
+    - label: "<option 1>"
+      description: "<what happens if chosen>"
+    - label: "<option 2>"
+      description: "<what happens if chosen>"
+  multiSelect: false
+```
+
+The `AskUserQuestion` tool always includes an automatic "Other" option that allows the designer to provide free-text input, so the structured format never blocks open-ended responses.
+
+### 9.2 Rule 2: Open-Ended Input → Keep Natural Language
+
+If the decision requires the designer to describe specific content (modification intent, new direction, supplementary information), use natural language dialogue.
+
+**Indicators**: "describe what you want", "tell me more about", content creation, detailed feedback.
+
+### 9.3 Rule 3: Compound Decisions → Structured First, Then Open
+
+If the decision is a "choice + elaboration" combination (e.g., "select Option A but modify the title"):
+
+1. First use `AskUserQuestion` to capture the selection
+2. If the designer picks an option requiring elaboration (e.g., "✏️ Modify"), follow up with natural language to collect specifics
+
+### 9.4 Rule 4: Batch Decisions → Multi-Question Parallel
+
+If there are multiple independent decision points (e.g., per-item KB approval), use `AskUserQuestion`'s multi-question mode (up to 4 questions simultaneously), and process in batches.
+
+### 9.5 Decision Point Reference
+
+Each Skill SOP marks its decision points with `[DECISION POINT — STRUCTURED]` (use `AskUserQuestion`) or `[DECISION POINT — OPEN]` (natural language). If a decision point is not explicitly marked, apply Rules 1-4 above to determine the interaction method.

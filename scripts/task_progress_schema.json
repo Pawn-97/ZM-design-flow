@@ -20,6 +20,8 @@
     "current_state": {
       "type": "string",
       "enum": [
+        "migration",
+        "migration_complete",
         "onboarding",
         "init",
         "alignment",
@@ -34,7 +36,7 @@
         "knowledge_extraction",
         "complete"
       ],
-      "description": "Current position in the state machine. MVP chain: onboarding → init → alignment → research_jtbd → interaction_design → prepare_design_contract → contract_review → hifi_generation → review → knowledge_extraction → complete. States 'logic_inquisitor' and 'baseline_validation' are reserved for V0.4."
+      "description": "Current position in the state machine. MVP chain: onboarding → init → alignment → research_jtbd → interaction_design → prepare_design_contract → contract_review → hifi_generation → review → knowledge_extraction → complete. Migration chain: migration → migration_complete (then dispatches to appropriate phase). States 'logic_inquisitor' and 'baseline_validation' are reserved for V0.4."
     },
     "expected_next_state": {
       "type": ["string", "null"],
@@ -129,6 +131,42 @@
       "type": "array",
       "description": "Persistent design constraints accumulated across Phase 4 review rounds",
       "items": { "type": "string" }
+    },
+    "migration_metadata": {
+      "type": "object",
+      "description": "Present only for tasks created via /harnessdesign-migrate. Tracks migration provenance and coverage.",
+      "properties": {
+        "migrated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of migration completion"
+        },
+        "source_artifacts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of imported file names"
+        },
+        "coverage_scores": {
+          "type": "object",
+          "description": "Per-phase coverage scores (0.0-1.0)",
+          "additionalProperties": { "type": "number" }
+        },
+        "phases_skipped": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Phases with full coverage that were skipped"
+        },
+        "phases_gapfilled": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Phases with partial coverage that went through gap-fill dialogue"
+        },
+        "phases_seeded": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Phases with seed-level coverage (artifacts provided as accelerator input)"
+        }
+      }
     }
   }
 }

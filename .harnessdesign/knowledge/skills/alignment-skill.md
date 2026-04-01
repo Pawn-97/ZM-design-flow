@@ -120,6 +120,19 @@ Is there anything you'd like to add or anything you'd like me to expand on? When
 [STOP AND WAIT]
 Wait for the designer to confirm they understand the PRD overview, or request expansion on certain parts.
 After the designer responds (or confirms OK), proceed to §2.3 to present your analysis.
+
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "PRD 概览是否符合你的预期？"
+  header: "PRD 确认"
+  options:
+    - label: "✅ 理解正确"
+      description: "概览准确，继续下一步"
+    - label: "📝 需要补充说明"
+      description: "有些地方需要展开或纠正"
+  multiSelect: false
+
+If designer selects "📝 需要补充说明" → follow up with natural language
 ```
 
 **Key points**:
@@ -147,6 +160,21 @@ Wait for the designer's response:
   - Designer provides a verbal description → structure and record key information, confirm understanding, then proceed to §2.4
   - Designer uploads files → read file contents, extract key information, confirm extraction results with the designer, then proceed to §2.4
   - Designer says "no" / "let's just start" → proceed directly to §2.4
+
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "是否有额外的背景材料要分享？"
+  header: "背景材料"
+  options:
+    - label: "📎 上传文件"
+      description: "我有相关文件要分享"
+    - label: "💬 口头补充"
+      description: "我想口头补充一些背景"
+    - label: "⏭️ 跳过此步"
+      description: "没有额外材料，直接开始分析"
+  multiSelect: false
+
+If designer selects "📎 上传文件" or "💬 口头补充" → follow up with natural language
 ```
 
 **Key points**:
@@ -330,6 +358,19 @@ Wait for designer's response:
   - Modification feedback → follow guided-dialogue.md §3 semantic merging rules
     Merge feedback with the original intent structurally, update the file, and re-present
     Never simply retry — must structurally merge
+
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "confirmed_intent 是否准确反映了你的设计意图？"
+  header: "意图确认"
+  options:
+    - label: "✅ 确认"
+      description: "理解准确，进入下一阶段"
+    - label: "✏️ 需要修改"
+      description: "大方向对但有细节需要调整，我会说明具体修改点"
+  multiSelect: false
+
+If designer selects "✏️ 需要修改" → follow up with natural language to collect specifics
 ```
 
 ---

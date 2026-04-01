@@ -304,6 +304,19 @@ If Max Retries reached and still failing:
    Continue to Review?"
 ```
 
+```
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "校验发现问题，如何处理？"
+  header: "校验结果"
+  options:
+    - label: "🔧 要求修复"
+      description: "先修复校验问题再继续"
+    - label: "👀 继续 Review"
+      description: "忽略校验问题，先看整体效果"
+  multiSelect: false
+```
+
 ---
 
 ## 4. State Update (After Validation)
@@ -353,6 +366,23 @@ Possible responses:
 - Approve → §5.5 Confirm Transition
 - Feedback → §5.3 Feedback Handling
 - Reject → §5.4 Major Direction Issues
+```
+
+```
+[DECISION POINT — STRUCTURED]
+Use AskUserQuestion:
+  question: "高保真原型是否达到预期？"
+  header: "原型审批"
+  options:
+    - label: "✅ 通过"
+      description: "原型符合预期，进入知识提取"
+    - label: "✏️ 修改反馈"
+      description: "整体方向对，但有细节需要调整"
+    - label: "❌ 方向有问题"
+      description: "需要重新审视设计方向"
+  multiSelect: false
+
+If designer selects "✏️ 修改反馈" or "❌ 方向有问题" → follow up with natural language
 ```
 
 ### 5.3 Feedback Handling (Feedback Boundary Compression)

@@ -44,6 +44,19 @@ When the designer enters `/harnessdesign-start` (no parameters required):
    Over to you, whatever works best."
 
    [STOP AND WAIT]
+
+   [DECISION POINT — STRUCTURED]
+   Use AskUserQuestion:
+     question: "你想以什么方式提供任务信息？"
+     header: "输入方式"
+     options:
+       - label: "📝 口头描述"
+         description: "直接描述你的设计需求"
+       - label: "📎 上传 PRD"
+         description: "拖拽文件到终端即可"
+       - label: "🔀 两者都有"
+         description: "先描述背景，再上传文件"
+     multiSelect: false
    ```
 
    Wait for the designer's response:
@@ -60,6 +73,19 @@ When the designer enters `/harnessdesign-start` (no parameters required):
    If you'd like a different name, let me know. Otherwise I'll get started."
 
    [STOP AND WAIT]
+
+   [DECISION POINT — STRUCTURED]
+   Use AskUserQuestion:
+     question: "任务名称确认为 `tasks/<suggested-name>/`？"
+     header: "任务名称"
+     options:
+       - label: "✅ 确认"
+         description: "使用建议的名称"
+       - label: "✏️ 自定义名称"
+         description: "我想用其他名称"
+     multiSelect: false
+
+   If designer selects "✏️ 自定义名称" → follow up with natural language to collect the custom name
    ```
 
 2. **Knowledge Base Check** (after task collection is complete):
@@ -77,6 +103,60 @@ When the designer enters `/harnessdesign-start` (no parameters required):
    - **Initial creation of `task-progress.json` does not require running `validate_transition.py`** — validation only applies to updating existing state
 
 4. **Select path based on knowledge base status**:
+
+---
+
+#### Path C: Context Migration (`/harnessdesign-migrate` Command)
+
+When the designer enters `/harnessdesign-migrate`:
+
+> This path is for designers who have existing design artifacts from other AI tools (ChatGPT, Claude, Copilot, etc.) and want to migrate them into HarnessDesign.
+
+Initialize `task-progress.json`:
+
+```json
+{
+  "task_name": "<task-name>",
+  "prd_path": null,
+  "task_description": "Context migration from external tools",
+  "created_at": "<ISO 8601>",
+  "current_state": "migration",
+  "expected_next_state": null,
+  "states": {
+    "migration": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "onboarding": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "init": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "alignment": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "research_jtbd": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "interaction_design": {
+      "passes": false,
+      "approved_by": null,
+      "approved_at": null,
+      "artifacts": [],
+      "scenarios": {}
+    },
+    "prepare_design_contract": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "contract_review": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "hifi_generation": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "review": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "knowledge_extraction": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] },
+    "complete": { "passes": false, "approved_by": null, "approved_at": null, "artifacts": [] }
+  },
+  "phase2_state": {
+    "insight_cards_path": null,
+    "current_topic_domain": null,
+    "topic_count": 0
+  },
+  "archive_index": [],
+  "accumulated_constraints": []
+}
+```
+
+**⚠️ Critical Instruction: After writing `task-progress.json`, immediately read and execute `migration-skill.md`. Do not perform any additional file exploration before this.**
+
+After migration completes, the migration skill will either:
+- Dispatch to the first phase with gaps (standard workflow continues)
+- Set `current_state` to `"migration_complete"` (standby — designer decides next action)
 
 ---
 
@@ -200,6 +280,8 @@ onboarding → init → alignment → research_jtbd → interaction_design
 
 | current_state | Loaded Skill | Description |
 |---------------|-------------|------|
+| `migration` | `migration-skill.md` | Context Migration (Path C) |
+| `migration_complete` | — (standby) | Migration complete, awaiting designer instruction |
 | `init` → `alignment` | `alignment-skill.md` | Phase 1: Context Alignment |
 | `alignment` (passes) → `research_jtbd` | `research-strategist-skill.md` | Phase 2: Research + JTBD |
 | `research_jtbd` (passes) → `interaction_design` | `interaction-designer-skill.md` | Phase 3: Per-scenario Interaction |
@@ -208,7 +290,7 @@ onboarding → init → alignment → research_jtbd → interaction_design
 | `review` (passes) → `knowledge_extraction` | `knowledge-extractor-skill.md` | Knowledge Extraction |
 | `knowledge_extraction` (passes) → `complete` | — | Workflow Complete |
 
-3. **Skipping states is strictly prohibited**: States must flow in order; jumping from `alignment` directly to `interaction_design` is not allowed
+3. **Skipping states is strictly prohibited**: States must flow in order; jumping from `alignment` directly to `interaction_design` is not allowed. **Exception**: Migration (Path C) may skip phases when `migration_metadata` exists and skipped phases have `passes: true` + `approved_by: "migration"`
 4. **Restore context**: When loading a Skill, simultaneously inject the anchor layer (user_intent + summary index + current progress) into context
 
 ### 2.3 Human Control Points
@@ -353,6 +435,7 @@ When a session disconnects and restarts:
    - Current Phase/scenario progress
 4. Confirm with the designer: "I detected an incomplete task `<task-name>`, currently at the `<current_state>` phase. Would you like to continue?"
 5. After designer confirmation, load the corresponding Skill and continue execution
+6. **Migration state recovery**: If `current_state === "migration"`, read `_migration/inventory.json` to determine the last completed stage and resume from there. If `current_state === "migration_complete"`, inform designer that migration is done and await instructions.
 
 ---
 

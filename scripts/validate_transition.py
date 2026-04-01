@@ -29,6 +29,18 @@ from datetime import datetime
 # ---------------------------------------------------------------------------
 
 TRANSITIONS = {
+    "migration": {
+        "requires_files": [],
+        "requires_approval": False,
+        "next": None,  # Dynamic target — determined by coverage analysis
+        "description": "Context migration from external AI tools",
+    },
+    "migration_complete": {
+        "requires_files": [],
+        "requires_approval": False,
+        "next": None,  # Standby state — designer decides next action
+        "description": "Migration complete, awaiting designer's next instruction",
+    },
     "onboarding": {
         "requires_files": [
             ".harnessdesign/knowledge/product-context/product-context-index.md"
@@ -177,6 +189,34 @@ def validate_transition(task_dir: str, target_state: str) -> dict:
         )
         return result
 
+    # --- Migration exception: migration states have dynamic targets ---
+    if current in ("migration", "migration_complete"):
+        migration_meta = progress.get("migration_metadata", {})
+        states = get_states(progress)
+
+        # migration → any phase is allowed if migration_metadata exists
+        if current == "migration" and migration_meta:
+            # Validate that all skipped phases have passes: true + approved_by: "migration"
+            for skipped in migration_meta.get("phases_skipped", []):
+                gate = states.get(skipped, {})
+                if not gate.get("passes") or gate.get("approved_by") != "migration":
+                    result["valid"] = False
+                    result["errors"].append(
+                        f"Skipped phase '{skipped}' must have passes=true and "
+                        f"approved_by='migration' before transition"
+                    )
+            return result
+
+        # migration_complete → any phase is allowed (designer chooses)
+        if current == "migration_complete":
+            if target_state in TRANSITIONS:
+                return result
+            result["valid"] = False
+            result["errors"].append(
+                f"Unknown target state: '{target_state}'"
+            )
+            return result
+
     # Check expected_next_state matches
     expected = progress.get("expected_next_state")
     if expected and expected != target_state:
@@ -267,6 +307,18 @@ def generate_summary(task_dir: str) -> dict:
         "checklist": [],
     }
 
+    # Migration states: show migration metadata in summary
+    if current in ("migration", "migration_complete"):
+        migration_meta = progress.get("migration_metadata", {})
+        if migration_meta:
+            summary["migration_metadata"] = migration_meta
+            for phase, score in migration_meta.get("coverage_scores", {}).items():
+                level = "full" if score >= 0.8 else "partial" if score >= 0.4 else "seed" if score >= 0.1 else "none"
+                summary["checklist"].append(
+                    {"item": f"{phase}: {level} ({score:.2f})", "status": "info", "type": "coverage"}
+                )
+        return summary
+
     # Build checklist for the current state
     if current in TRANSITIONS:
         rule = TRANSITIONS[current]
@@ -336,6 +388,12 @@ def check_write_allowed(file_path: str, task_dir: str) -> dict:
         return result  # Can't validate, allow with warning
 
     current = progress.get("current_state", "")
+
+    # Migration state: allow writing any artifact (converting imported content)
+    if current in ("migration", "migration_complete"):
+        result["allowed"] = True
+        result["reason"] = f"Migration state '{current}' allows writing any artifact"
+        return result
     state_artifacts = {
         "alignment": ["confirmed_intent.md"],
         "research_jtbd": ["00-research.md", "01-jtbd.md"],
