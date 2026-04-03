@@ -70,6 +70,8 @@ In Codex, the following files must be written through `harnessdesign_runtime` in
 
 - `task-progress.json`
 - `confirmed_intent.md`
+- `phase1-handoff.md`
+- `phase1-material-manifest.json`
 - `00-research.md`
 - `01-jtbd.md`
 - `02-structure.md`
@@ -79,7 +81,7 @@ In Codex, the following files must be written through `harnessdesign_runtime` in
 
 Tool mapping:
 - `task-progress.json` → `hd_update_progress`
-- stage artifacts / archives / HTML → `hd_write_artifact`
+- stage artifacts / handoff bundle / archives / HTML → `hd_write_artifact`
 - archive-only recheck → `hd_verify_archive`
 
 ## 5. Command Aliases

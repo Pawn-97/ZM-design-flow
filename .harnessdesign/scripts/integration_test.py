@@ -230,9 +230,9 @@ def test_state_machine_consistency(r: TestResult):
     else:
         r.warn("Schema doesn't require 'states' or 'gates' in top-level required")
 
-    # 1d. Check phase2_state, archive_index, accumulated_constraints exist in schema
+    # 1d. Check phase2_state, phase1_handoff, archive_index, accumulated_constraints exist in schema
     props = schema.get("properties", {})
-    for field in ["phase2_state", "archive_index", "accumulated_constraints", "prd_path"]:
+    for field in ["phase2_state", "phase1_handoff", "archive_index", "accumulated_constraints", "prd_path"]:
         if field in props:
             r.ok(f"Schema contains field: {field}")
         else:
@@ -299,6 +299,30 @@ def test_skill_files(r: TestResult):
                 r.warn(f"{filename}: malformed frontmatter")
         else:
             r.warn(f"{filename}: no YAML frontmatter")
+
+    alignment_path = os.path.join(skills_dir, "alignment-skill.md")
+    with open(alignment_path, "r", encoding="utf-8") as f:
+        alignment_content = f.read()
+    if "phase1-handoff.md" in alignment_content and "phase1-material-manifest.json" in alignment_content:
+        r.ok("alignment-skill.md references the Phase 1 boundary handoff bundle")
+    else:
+        r.fail("alignment-skill.md missing Phase 1 boundary handoff bundle references")
+
+    research_path = os.path.join(skills_dir, "research-strategist-skill.md")
+    with open(research_path, "r", encoding="utf-8") as f:
+        research_content = f.read()
+    if "phase1-handoff.md" in research_content and "fresh context" in research_content:
+        r.ok("research-strategist-skill.md references fresh Phase 1 boundary startup")
+    else:
+        r.fail("research-strategist-skill.md missing fresh boundary startup guidance")
+
+    router_path = os.path.join(skills_dir, "harnessdesign-router.md")
+    with open(router_path, "r", encoding="utf-8") as f:
+        router_content = f.read()
+    if "phase1-handoff.md" in router_content and "fresh resume" in router_content:
+        r.ok("harnessdesign-router.md references Phase 1→2 compile boundary")
+    else:
+        r.fail("harnessdesign-router.md missing Phase 1→2 compile boundary guidance")
 
 
 # ---------------------------------------------------------------------------
@@ -485,6 +509,13 @@ def test_state_chain_simulation(r: TestResult):
                 "current_topic_domain": None,
                 "topic_count": 0,
             },
+            "phase1_handoff": {
+                "handoff_path": None,
+                "material_manifest_path": None,
+                "validated": False,
+                "validated_at": None,
+                "fresh_resume_required": False,
+            },
             "archive_index": [],
             "accumulated_constraints": [],
         }
@@ -497,7 +528,11 @@ def test_state_chain_simulation(r: TestResult):
             ],
             "alignment": [
                 (os.path.join(tmp_dir, "confirmed_intent.md"),
-                 "# Confirmed Intent\nStub for testing.")
+                 "# Confirmed Intent\n\n## Core Problem\nStub for testing.\n\n## User Roles\n- **Admin**: Maintains the system.\n\n## Constraints\n- ✅ Must preserve auditability.\n\n## Success Criteria\n- Reduce research startup ambiguity.\n\n## Exploration Directions\n- Review competitor approaches.\n\n## Deferred Questions\n- Should competitor signals affect prioritization?\n\n## Additional Context\n- Designer shared extra background.\n"),
+                (os.path.join(tmp_dir, "phase1-handoff.md"),
+                 "# Phase 1 Handoff\n\n## Core Questions\n- How should competitor signals affect prioritization in research?\n- Which auditability constraints shape the opportunity space?\n\n## Target Roles\n- Admin — primary research target because they maintain the system and feel the current pain most often.\n\n## Confirmed Constraints\n- Must preserve auditability.\n\n## Success Criteria\n- Reduce research startup ambiguity.\n- Keep Phase 2 startup deterministic.\n\n## Designer Background Assertions\n- Designer shared extra background about internal team concerns.\n\n## Deferred Questions For Research\n- Should competitor signals affect prioritization?\n\n## Research Targets\n- Review competitor approaches.\n- Investigate auditability-sensitive workflows.\n\n## Non-Goals\n- Do not choose the final interaction pattern in Phase 2.\n\n## Risk Flags\n- The current requirement framing may over-index on internal assumptions.\n\n## Source References\n- confirmed_intent.md -> Constraints\n- confirmed_intent.md -> Deferred Questions\n- phase1-alignment.md -> Alignment Dialogue\n"),
+                (os.path.join(tmp_dir, "phase1-material-manifest.json"),
+                 "{\n  \"materials\": []\n}\n"),
             ],
             "research_jtbd": [
                 (os.path.join(tmp_dir, "00-research.md"), "# Research\nStub."),
@@ -547,6 +582,14 @@ def test_state_chain_simulation(r: TestResult):
             if vt_mod.TRANSITIONS.get(current, {}).get("requires_approval"):
                 progress["states"][current]["approved_by"] = "designer"
                 progress["states"][current]["approved_at"] = "2026-03-26T00:00:00Z"
+            if current == "alignment":
+                progress["phase1_handoff"] = {
+                    "handoff_path": "phase1-handoff.md",
+                    "material_manifest_path": "phase1-material-manifest.json",
+                    "validated": True,
+                    "validated_at": "2026-03-26T00:00:00Z",
+                    "fresh_resume_required": True,
+                }
 
             # Write progress file
             progress_path = os.path.join(tmp_dir, "task-progress.json")

@@ -1,6 +1,6 @@
 ---
 name: research-strategist-skill
-description: Phase 2 Research+JTBD — 4-stage internal structure (Research → Presentation → Topic Divergence → JTBD), with topic-level Context Reset and InsightCard handoff
+description: Phase 2 Research+JTBD — 4-stage internal structure (Research → Presentation → Topic Divergence → JTBD), with a fresh Phase 1 boundary handoff and topic-level Context Reset
 user_invocable: false
 allowed_tools:
   - Read
@@ -19,7 +19,7 @@ allowed_tools:
 >
 > **Protocol reference**: This Skill follows the dialogue protocol defined in `guided-dialogue.md` throughout.
 >
-> **Key mechanism**: This Skill uses **topic-level Context Reset** — each topic domain is an independent dialogue round, with state handoff via InsightCards. Working layer peak stays constant at 12-17k tokens, without growing as topics increase.
+> **Key mechanism**: This Skill starts from a **fresh Phase 1 boundary handoff** and then uses **topic-level Context Reset** — each topic domain is an independent dialogue round, with state handoff via InsightCards. Working layer peak stays constant at 12-17k tokens, without growing as topics increase.
 
 ---
 
@@ -43,6 +43,7 @@ allowed_tools:
 [PREREQUISITE] Read tasks/<task-name>/task-progress.json
 Assert: current_state === "research_jtbd"
 Assert: states.alignment.passes === true
+Assert: phase1_handoff.validated === true
 If not satisfied → stop execution, report state inconsistency
 ```
 
@@ -51,11 +52,39 @@ If not satisfied → stop execution, report state inconsistency
 ```
 [ACTION] Read the following files into the anchor layer (always present in context):
 1. tasks/<task-name>/confirmed_intent.md (~500 tokens, Phase 1 output)
-2. .harnessdesign/knowledge/product-context/product-context-index.md (L0, if exists)
-3. Summary index (rebuild from task-progress.json.archive_index)
+2. tasks/<task-name>/phase1-handoff.md (~700-1200 tokens, boundary compile artifact)
+3. .harnessdesign/knowledge/product-context/product-context-index.md (L0, if exists)
+4. Summary index (rebuild from task-progress.json.archive_index)
 ```
 
-### 1.3 Load Knowledge Base L1 (Working Layer)
+### 1.3 Load Material Recall Map
+
+```
+[ACTION] Read tasks/<task-name>/phase1-material-manifest.json
+
+Purpose:
+- Treat it as the default recall map for Phase 1 uploaded/background materials
+- Do not re-read all raw materials by default
+- Only recall a specific material when the research task or designer request requires it
+```
+
+### 1.4 Boundary Reset Rule
+
+```
+[BOUNDARY RESET]
+Phase 2 assumes fresh context.
+Do not rely on live conversation memory from Phase 1.
+All startup context must be reconstructed from disk-backed artifacts only:
+- confirmed_intent.md
+- phase1-handoff.md
+- phase1-material-manifest.json
+- L0/L1 knowledge base files
+- archive_index
+```
+
+If `phase1_handoff.fresh_resume_required === true`, treat this startup as the boundary-consume step. After rebuilding from disk, clear that flag in `task-progress.json`.
+
+### 1.5 Load Knowledge Base L1 (Working Layer)
 
 ```
 [ACTION] If knowledge base exists, read the following L1 files into working layer:
@@ -75,7 +104,7 @@ Purpose: Understand existing knowledge so Stage A research focuses on incrementa
 
 **MVP Research Sources** (V0.2):
 - **AI built-in knowledge**: Industry best practices, design patterns, user psychology, publicly available competitor information
-- **Designer-provided materials**: Screenshots, internal documents, data reports, user feedback (designer can supplement at any time during conversation)
+- **Designer-provided materials**: Screenshots, internal documents, data reports, user feedback. Use `phase1-material-manifest.json` as the default index and only recall the raw material on demand.
 
 **V0.3 additions** (not implemented currently):
 - Web Search incremental research (skip basic information already covered by knowledge base)
@@ -453,7 +482,7 @@ blind_spots:
 ```
 [CONTEXT RESET]
 Clear current topic dialogue content from the working layer.
-Only retain the anchor layer (confirmed_intent + L0 + summary index).
+Only retain the anchor layer (confirmed_intent + phase1-handoff + L0 + summary index).
 ```
 
 **Implementation**: This is not literally "clearing memory" — rather, in subsequent dialogue, the AI no longer references archived topic dialogue content. New topic round input comes entirely from disk files.
@@ -462,7 +491,7 @@ Only retain the anchor layer (confirmed_intent + L0 + summary index).
 
 ```
 [ACTION] Rebuild working layer from disk:
-1. Anchor layer: confirmed_intent + L0 + summary index (~5-6k tokens)
+1. Anchor layer: confirmed_intent + phase1-handoff + L0 + summary index (~6-8k tokens)
 2. Read .harnessdesign/memory/sessions/phase2-insight-cards.md (all archived InsightCards, ~2-3k tokens)
 3. Research report summary version (~2-3k tokens)
 4. Active dialogue space for new topic (~3-5k tokens available)
@@ -512,7 +541,7 @@ Do you think we can start converging into JTBD? Or is there another direction yo
 Clear the dialogue content from Stage C's last topic.
 
 [ACTION] Rebuild Stage D working layer from disk:
-1. Anchor layer: confirmed_intent + L0 + summary index (~5-6k tokens)
+1. Anchor layer: confirmed_intent + phase1-handoff + L0 + summary index (~6-8k tokens)
 2. Read all InsightCards (~3-5k tokens, depending on topic count)
 3. Research report summary version (~2-3k tokens)
 
@@ -727,7 +756,7 @@ Working layer composition for each topic round (constant, does not grow with top
 
 | Component | Token Budget | Source |
 |-----------|-------------|--------|
-| Anchor layer (confirmed_intent + L0 + index) | ~5-6k | Resident |
+| Anchor layer (confirmed_intent + phase1-handoff + L0 + index) | ~6-8k | Resident |
 | All InsightCards | ~2-3k | Read from disk |
 | Research report summary version | ~2-3k | Kept in memory |
 | Active dialogue | ~3-5k | Current topic |
@@ -740,6 +769,11 @@ If dialogue within a single topic inflates beyond the global watermark Advisory 
 #### C.1 confirmed_intent.md does not exist
 ```
 → Stop execution, report: "Phase 1 artifact confirmed_intent.md is missing, please complete context alignment first."
+```
+
+#### C.1b phase1-handoff.md or phase1-material-manifest.json does not exist
+```
+→ Stop execution, report: "Phase 1 boundary handoff bundle is missing or invalid. Please return to the Phase 1 boundary compile step and resume again."
 ```
 
 #### C.2 InsightCards file write failure

@@ -69,6 +69,8 @@ When running inside Codex, the following files must be modified via `harnessdesi
 
 - `task-progress.json`
 - `confirmed_intent.md`
+- `phase1-handoff.md`
+- `phase1-material-manifest.json`
 - `00-research.md`
 - `01-jtbd.md`
 - `02-structure.md`
@@ -79,7 +81,7 @@ When running inside Codex, the following files must be modified via `harnessdesi
 Tool mapping:
 
 - `task-progress.json` → `hd_update_progress`
-- stage artifacts / archives / HTML → `hd_write_artifact`
+- stage artifacts / handoff bundle / archives / HTML → `hd_write_artifact`
 - archive-only recheck → `hd_verify_archive`
 - structured designer choice → `hd_ask_decision`
 
@@ -106,6 +108,8 @@ Codex hooks still cannot intercept generic `Edit` / `Write` tool calls. If you e
 |------|-------------------|
 | `task-progress.json` | `python3 scripts/validate_transition.py --check-write <full_file_path> <task_dir>` |
 | `confirmed_intent.md` | Same as above |
+| `phase1-handoff.md` | Same as above |
+| `phase1-material-manifest.json` | Same as above |
 | `00-research.md` | Same as above |
 | `01-jtbd.md` | Same as above |
 | `02-structure.md` | Same as above |
@@ -157,6 +161,7 @@ onboarding → init → alignment → research_jtbd → interaction_design
 
 - **Conversations are "scaffolding", artifacts are "buildings" — tear down the scaffolding once it has served its purpose**
 - Proactively archive conversations to `.harnessdesign/memory/sessions/` when a Phase/scenario completes
+- Treat `alignment → research_jtbd` as a compile boundary: compile `phase1-handoff.md` + `phase1-material-manifest.json`, validate them, then resume Phase 2 from fresh context
 - Archive files must include YAML frontmatter (type, phase, archived_at, token_count, sections, keywords, digest)
 - Anchor layer (~6-7k tokens) always retained: user_intent + summary index + current progress
 - Working layer water level monitoring: Green 0-25k, Yellow 25-40k, Orange 40-60k, Red 60k+
@@ -231,6 +236,8 @@ scripts/                            # State machine validation scripts
 tasks/<task-name>/                  # Task workspace (generated at runtime)
 ├── task-progress.json              # State machine credential (core!)
 ├── confirmed_intent.md             # Phase 1 output
+├── phase1-handoff.md               # Phase 1→2 boundary handoff
+├── phase1-material-manifest.json   # Phase 1 uploaded/background materials index
 ├── 00-research.md                  # Phase 2 research report
 ├── 01-jtbd.md                      # Phase 2 JTBD
 ├── 02-structure.md                 # Phase 3 interaction design summary

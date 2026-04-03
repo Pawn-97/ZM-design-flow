@@ -18,6 +18,7 @@ Exit codes:
 
 import json
 import os
+import re
 import sys
 from datetime import datetime
 
@@ -56,7 +57,11 @@ TRANSITIONS = {
         "description": "Task workspace initialization",
     },
     "alignment": {
-        "requires_files": ["confirmed_intent.md"],
+        "requires_files": [
+            "confirmed_intent.md",
+            "phase1-handoff.md",
+            "phase1-material-manifest.json",
+        ],
         "requires_approval": True,
         "next": "research_jtbd",
         "description": "Context alignment — designer confirms shared understanding",
@@ -148,6 +153,234 @@ def file_exists_and_nonempty(task_dir: str, relative_path: str) -> bool:
         if os.path.isfile(p) and os.path.getsize(p) > 0:
             return True
     return False
+
+
+def read_relative_file(task_dir: str, relative_path: str) -> str | None:
+    """Read a file relative to the task directory or project root."""
+    project_root = find_project_root(task_dir)
+    candidates = [
+        os.path.join(task_dir, relative_path),
+        os.path.join(project_root, relative_path),
+    ]
+    for path in candidates:
+        if os.path.isfile(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read()
+    return None
+
+
+def parse_markdown_sections(text: str) -> dict:
+    """Parse H2 sections from markdown into a simple title -> content mapping."""
+    sections = {}
+    current_title = None
+    current_lines = []
+
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if current_title is not None:
+                sections[current_title] = "\n".join(current_lines).strip()
+            current_title = line[3:].strip()
+            current_lines = []
+            continue
+        if current_title is not None:
+            current_lines.append(line)
+
+    if current_title is not None:
+        sections[current_title] = "\n".join(current_lines).strip()
+    return sections
+
+
+def extract_bullet_items(text: str) -> list[str]:
+    """Extract flat markdown bullet items from a section."""
+    items = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            items.append(stripped[2:].strip())
+    return items
+
+
+def normalize_text(value: str) -> str:
+    """Normalize text for loose matching across artifacts."""
+    lowered = value.lower()
+    lowered = re.sub(r"`+", "", lowered)
+    lowered = re.sub(r"\[.*?\]\(.*?\)", "", lowered)
+    lowered = re.sub(r"[^\w\s\u4e00-\u9fff]+", " ", lowered)
+    lowered = re.sub(r"\s+", " ", lowered)
+    return lowered.strip()
+
+
+def roughly_matches(candidate: str, haystack: str) -> bool:
+    """Check whether a normalized candidate appears in a normalized text blob."""
+    candidate_norm = normalize_text(candidate)
+    haystack_norm = normalize_text(haystack)
+    if not candidate_norm:
+        return True
+    if not haystack_norm:
+        return False
+    return candidate_norm in haystack_norm or haystack_norm in candidate_norm
+
+
+def estimate_tokens(text: str) -> int:
+    """Very rough token estimate for budget checks."""
+    return max(1, len(text) // 4)
+
+
+def validate_phase1_handoff(task_dir: str) -> dict:
+    """Validate the Phase 1 boundary handoff bundle."""
+    result = {"valid": True, "errors": [], "warnings": []}
+
+    confirmed_text = read_relative_file(task_dir, "confirmed_intent.md")
+    handoff_text = read_relative_file(task_dir, "phase1-handoff.md")
+    manifest_text = read_relative_file(task_dir, "phase1-material-manifest.json")
+
+    if not confirmed_text:
+        result["valid"] = False
+        result["errors"].append("confirmed_intent.md is missing or empty.")
+        return result
+    if not handoff_text:
+        result["valid"] = False
+        result["errors"].append("phase1-handoff.md is missing or empty.")
+        return result
+    if not manifest_text:
+        result["valid"] = False
+        result["errors"].append("phase1-material-manifest.json is missing or empty.")
+        return result
+
+    handoff_sections = parse_markdown_sections(handoff_text)
+    required_sections = [
+        "Core Questions",
+        "Target Roles",
+        "Confirmed Constraints",
+        "Success Criteria",
+        "Designer Background Assertions",
+        "Deferred Questions For Research",
+        "Research Targets",
+        "Non-Goals",
+        "Risk Flags",
+        "Source References",
+    ]
+    for section in required_sections:
+        if not handoff_sections.get(section):
+            result["valid"] = False
+            result["errors"].append(
+                f"phase1-handoff.md is missing required section '{section}'."
+            )
+
+    try:
+        manifest = json.loads(manifest_text)
+    except json.JSONDecodeError as exc:
+        result["valid"] = False
+        result["errors"].append(
+            f"phase1-material-manifest.json is not valid JSON: {exc}"
+        )
+        return result
+
+    materials = manifest.get("materials")
+    if not isinstance(materials, list):
+        result["valid"] = False
+        result["errors"].append(
+            "phase1-material-manifest.json must contain a top-level 'materials' array."
+        )
+        materials = []
+
+    for idx, item in enumerate(materials, start=1):
+        if not isinstance(item, dict):
+            result["valid"] = False
+            result["errors"].append(
+                f"phase1-material-manifest.json materials[{idx}] must be an object."
+            )
+            continue
+        for field in [
+            "id",
+            "path",
+            "kind",
+            "source",
+            "sha256",
+            "summary",
+            "relevance",
+            "phase1_sections",
+        ]:
+            if field not in item:
+                result["valid"] = False
+                result["errors"].append(
+                    f"phase1-material-manifest.json materials[{idx}] is missing '{field}'."
+                )
+
+    confirmed_sections = parse_markdown_sections(confirmed_text)
+    confirmed_constraints = [
+        item
+        for item in extract_bullet_items(confirmed_sections.get("Constraints", ""))
+        if item
+    ]
+    deferred_questions = extract_bullet_items(
+        confirmed_sections.get("Deferred Questions", "")
+    )
+
+    handoff_constraints = "\n".join(
+        [
+            handoff_sections.get("Confirmed Constraints", ""),
+            handoff_sections.get("Risk Flags", ""),
+        ]
+    )
+    for constraint in confirmed_constraints:
+        constraint_body = constraint.replace("✅", "").strip()
+        if not roughly_matches(constraint_body, handoff_constraints):
+            result["valid"] = False
+            result["errors"].append(
+                f"Constraint from confirmed_intent.md missing in handoff bundle: '{constraint_body}'."
+            )
+
+    handoff_deferred = handoff_sections.get("Deferred Questions For Research", "")
+    for question in deferred_questions:
+        if not roughly_matches(question, handoff_deferred):
+            result["valid"] = False
+            result["errors"].append(
+                f"Deferred question missing in handoff bundle: '{question}'."
+            )
+
+    source_refs_section = handoff_sections.get("Source References", "")
+    source_refs = extract_bullet_items(source_refs_section)
+    if not source_refs:
+        result["valid"] = False
+        result["errors"].append("phase1-handoff.md must include at least one source reference.")
+    else:
+        valid_ref_tokens = {
+            "confirmed_intent.md",
+            "phase1-alignment.md",
+            "phase1-handoff.md",
+        }
+        for item in materials:
+            if isinstance(item, dict):
+                path = item.get("path")
+                if path:
+                    valid_ref_tokens.add(os.path.basename(path))
+                    valid_ref_tokens.add(path)
+        for ref in source_refs:
+            normalized_ref = normalize_text(ref)
+            if not any(normalize_text(token) in normalized_ref for token in valid_ref_tokens):
+                result["valid"] = False
+                result["errors"].append(
+                    f"Source reference does not point to a known artifact or material: '{ref}'."
+                )
+
+    handoff_tokens = estimate_tokens(handoff_text)
+    if handoff_tokens < 200:
+        result["valid"] = False
+        result["errors"].append(
+            f"phase1-handoff.md is too small ({handoff_tokens} estimated tokens)."
+        )
+    elif handoff_tokens > 2500:
+        result["valid"] = False
+        result["errors"].append(
+            f"phase1-handoff.md exceeds the startup budget ({handoff_tokens} estimated tokens)."
+        )
+    elif handoff_tokens < 700 or handoff_tokens > 1200:
+        result["warnings"].append(
+            f"phase1-handoff.md is outside the recommended target range ({handoff_tokens} estimated tokens)."
+        )
+
+    return result
 
 
 def validate_transition(task_dir: str, target_state: str) -> dict:
@@ -285,6 +518,14 @@ def validate_transition(task_dir: str, target_state: str) -> dict:
                     f"in states.{current}.artifacts — consider updating JSON"
                 )
 
+    # Transition-specific boundary validation
+    if current == "alignment" and target_state == "research_jtbd":
+        handoff = validate_phase1_handoff(task_dir)
+        if not handoff["valid"]:
+            result["valid"] = False
+            result["errors"].extend(handoff["errors"])
+        result["warnings"].extend(handoff["warnings"])
+
     return result
 
 
@@ -306,6 +547,7 @@ def generate_summary(task_dir: str) -> dict:
         "description": TRANSITIONS.get(current, {}).get("description", ""),
         "checklist": [],
     }
+    phase1_handoff = progress.get("phase1_handoff", {}) or {}
 
     # Migration states: show migration metadata in summary
     if current in ("migration", "migration_complete"):
@@ -345,6 +587,47 @@ def generate_summary(task_dir: str) -> dict:
                     "type": "approval",
                 }
             )
+
+        if current in ("alignment", "research_jtbd"):
+            handoff_path = phase1_handoff.get("handoff_path")
+            manifest_path = phase1_handoff.get("material_manifest_path")
+            if handoff_path:
+                summary["checklist"].append(
+                    {
+                        "item": os.path.basename(handoff_path),
+                        "status": "pass" if file_exists_and_nonempty(task_dir, handoff_path) else "fail",
+                        "type": "boundary_handoff",
+                    }
+                )
+            if manifest_path:
+                summary["checklist"].append(
+                    {
+                        "item": os.path.basename(manifest_path),
+                        "status": "pass" if file_exists_and_nonempty(task_dir, manifest_path) else "fail",
+                        "type": "boundary_handoff",
+                    }
+                )
+            if current == "research_jtbd":
+                summary["checklist"].append(
+                    {
+                        "item": "Phase 1 handoff validated",
+                        "status": "pass" if phase1_handoff.get("validated") else "fail",
+                        "type": "boundary_handoff",
+                    }
+                )
+                summary["checklist"].append(
+                    {
+                        "item": "Fresh resume required",
+                        "status": "info" if phase1_handoff.get("fresh_resume_required") else "pass",
+                        "type": "boundary_handoff",
+                    }
+                )
+                if phase1_handoff.get("fresh_resume_required"):
+                    summary["resume_guidance"] = (
+                        "Begin Phase 2 from a fresh session and rebuild only from "
+                        "confirmed_intent.md, phase1-handoff.md, phase1-material-manifest.json, "
+                        "the knowledge base, and archive_index."
+                    )
 
     # Archive checks (look for expected archive files)
     archive_dir = os.path.join(
@@ -395,7 +678,11 @@ def check_write_allowed(file_path: str, task_dir: str) -> dict:
         result["reason"] = f"Migration state '{current}' allows writing any artifact"
         return result
     state_artifacts = {
-        "alignment": ["confirmed_intent.md"],
+        "alignment": [
+            "confirmed_intent.md",
+            "phase1-handoff.md",
+            "phase1-material-manifest.json",
+        ],
         "research_jtbd": ["00-research.md", "01-jtbd.md"],
         "interaction_design": ["02-structure.md"],
         "prepare_design_contract": ["03-design-contract.md"],

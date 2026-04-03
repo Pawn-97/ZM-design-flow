@@ -24,6 +24,8 @@ SESSIONS_DIR = ROOT / ".harnessdesign" / "memory" / "sessions"
 CRITICAL_FILES = {
     "task-progress.json",
     "confirmed_intent.md",
+    "phase1-handoff.md",
+    "phase1-material-manifest.json",
     "00-research.md",
     "01-jtbd.md",
     "02-structure.md",
@@ -78,6 +80,8 @@ STATE_TO_SKILL = {
 
 DEFAULT_ARTIFACT_PATHS = {
     "confirmed_intent": "confirmed_intent.md",
+    "phase1_handoff": "phase1-handoff.md",
+    "phase1_material_manifest": "phase1-material-manifest.json",
     "research_report": "00-research.md",
     "jtbd": "01-jtbd.md",
     "structure": "02-structure.md",
@@ -243,6 +247,9 @@ def list_tasks() -> list[dict[str, Any]]:
                 "task_dir": str(child),
                 "current_state": progress.get("current_state"),
                 "expected_next_state": progress.get("expected_next_state"),
+                "fresh_resume_required": bool(
+                    (progress.get("phase1_handoff", {}) or {}).get("fresh_resume_required")
+                ),
                 "updated_at": progress_path.stat().st_mtime,
             }
         )
@@ -259,13 +266,22 @@ def get_task_summary(task_dir: str | pathlib.Path) -> dict[str, Any]:
 def get_resume_payload(task_dir: str | pathlib.Path) -> dict[str, Any]:
     progress = load_progress(task_dir)
     current_state = progress.get("current_state")
-    return {
+    phase1_handoff = progress.get("phase1_handoff", {}) or {}
+    payload = {
         "task_dir": str(pathlib.Path(task_dir).resolve()),
         "current_state": current_state,
         "recommended_skill": STATE_TO_SKILL.get(current_state),
         "summary": get_task_summary(task_dir),
         "progress": progress,
     }
+    if current_state == "research_jtbd" and phase1_handoff.get("fresh_resume_required"):
+        payload["fresh_resume_required"] = True
+        payload["resume_guidance"] = (
+            "Start Phase 2 from a fresh session and rebuild context from "
+            "`confirmed_intent.md`, `phase1-handoff.md`, `phase1-material-manifest.json`, "
+            "the knowledge base, and `archive_index` only."
+        )
+    return payload
 
 
 def search_archives(query: Any) -> dict[str, Any]:
@@ -352,7 +368,10 @@ def prompt_alias_context(prompt: str) -> str | None:
         return (
             f"The user invoked the HarnessDesign Codex alias `{head}`. "
             f"Treat this as an explicit request to invoke the repo skill `${skill_name}`.{extra} "
-            "Use the `harnessdesign_runtime` MCP tools for workflow-critical writes and structured decisions."
+            "Use the `harnessdesign_runtime` MCP tools for workflow-critical writes and structured decisions. "
+            "If the task is at `research_jtbd` and `phase1_handoff.fresh_resume_required` is true, "
+            "rebuild Phase 2 from `confirmed_intent.md`, `phase1-handoff.md`, `phase1-material-manifest.json`, "
+            "the knowledge base, and `archive_index` only."
         )
     if stripped.startswith("/recall"):
         return (
@@ -373,7 +392,10 @@ def session_context() -> str:
         lines.append("Known tasks:")
         for item in tasks[:5]:
             state = item.get("current_state", "unknown")
-            lines.append(f"- {item['task_name']}: {state} ({item['task_dir']})")
+            suffix = ""
+            if item.get("fresh_resume_required"):
+                suffix = " [fresh resume required]"
+            lines.append(f"- {item['task_name']}: {state}{suffix} ({item['task_dir']})")
     else:
         lines.append("Known tasks: none yet.")
     return "\n".join(lines)
@@ -382,4 +404,3 @@ def session_context() -> str:
 def pending_decision_snapshot() -> dict[str, Any]:
     path = runtime_path("pending_decisions.json")
     return load_json(path, default={"pending": []})
-

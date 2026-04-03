@@ -111,6 +111,33 @@
         }
       }
     },
+    "phase1_handoff": {
+      "type": "object",
+      "description": "Boundary handoff bundle metadata for the Phase 1 → Phase 2 reset protocol",
+      "properties": {
+        "handoff_path": {
+          "type": ["string", "null"],
+          "description": "Path to the structured Phase 1 handoff artifact"
+        },
+        "material_manifest_path": {
+          "type": ["string", "null"],
+          "description": "Path to the Phase 1 material manifest file"
+        },
+        "validated": {
+          "type": "boolean",
+          "description": "Whether the handoff bundle passed deterministic validation"
+        },
+        "validated_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO timestamp when the handoff bundle was last validated"
+        },
+        "fresh_resume_required": {
+          "type": "boolean",
+          "description": "Whether Phase 2 must begin from a fresh resume instead of continuing live chat context"
+        }
+      }
+    },
     "archive_index": {
       "type": "array",
       "description": "Index of all archived session files for recall",

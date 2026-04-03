@@ -147,6 +147,13 @@ Initialize `task-progress.json`:
     "current_topic_domain": null,
     "topic_count": 0
   },
+  "phase1_handoff": {
+    "handoff_path": null,
+    "material_manifest_path": null,
+    "validated": false,
+    "validated_at": null,
+    "fresh_resume_required": false
+  },
   "archive_index": [],
   "accumulated_constraints": []
 }
@@ -195,6 +202,13 @@ Initialize `task-progress.json` (note `current_state` and `expected_next_state`)
     "insight_cards_path": null,
     "current_topic_domain": null,
     "topic_count": 0
+  },
+  "phase1_handoff": {
+    "handoff_path": null,
+    "material_manifest_path": null,
+    "validated": false,
+    "validated_at": null,
+    "fresh_resume_required": false
   },
   "archive_index": [],
   "accumulated_constraints": []
@@ -247,6 +261,13 @@ Initialize `task-progress.json`:
     "current_topic_domain": null,
     "topic_count": 0
   },
+  "phase1_handoff": {
+    "handoff_path": null,
+    "material_manifest_path": null,
+    "validated": false,
+    "validated_at": null,
+    "fresh_resume_required": false
+  },
   "archive_index": [],
   "accumulated_constraints": []
 }
@@ -292,6 +313,7 @@ onboarding → init → alignment → research_jtbd → interaction_design
 
 3. **Skipping states is strictly prohibited**: States must flow in order; jumping from `alignment` directly to `interaction_design` is not allowed. **Exception**: Migration (Path C) may skip phases when `migration_metadata` exists and skipped phases have `passes: true` + `approved_by: "migration"`
 4. **Restore context**: When loading a Skill, simultaneously inject the anchor layer (user_intent + summary index + current progress) into context
+5. **Phase boundary compile rule**: `alignment -> research_jtbd` is a compile boundary. The AI must compile `phase1-handoff.md` + `phase1-material-manifest.json`, validate them, and prefer a fresh resume before Phase 2 begins.
 
 ### 2.3 Human Control Points
 
@@ -300,7 +322,7 @@ The following state transitions **must** go through manual designer confirmation
 | # | Control Point | Transition | Designer Action |
 |---|--------|------|-----------|
 | 0 | Onboarding Knowledge Base Confirmation | onboarding → init | Confirm generated knowledge base content |
-| 1 | Context Alignment Confirmation | alignment → research_jtbd | Confirm AI understanding is correct |
+| 1 | Context Alignment Confirmation | alignment → research_jtbd | Confirm AI understanding is correct, compile boundary handoff, then fresh-resume into Phase 2 |
 | 2 | Knowledge Base Incremental Update Confirmation | Internal to Phase 2 | Confirm/skip new research insights |
 | 3 | JTBD Convergence Confirmation | research_jtbd → interaction_design | Confirm JTBD is ready to converge |
 | 4 | Scenario List Confirmation | Internal to Phase 3 | Confirm/adjust scenario breakdown |
@@ -320,7 +342,7 @@ The following state transitions **must** go through manual designer confirmation
 When dispatching sub-tasks (e.g., parallel scenario extraction, independent evaluation):
 
 - **Passing dirty conversation is strictly prohibited**: Only pass the following information to sub-tasks:
-  1. Original `confirmed_intent.md` content
+  1. Original `confirmed_intent.md` content and compiled phase-boundary handoff artifacts when present
   2. Current sub-task state from `task-progress.json`
   3. Specific input files required by the sub-task
 - **Sub-task return**: Only return structured summaries; trial-and-error processes stay in the sub-task's local context
@@ -430,12 +452,14 @@ When a session disconnects and restarts:
 2. Read `task-progress.json`, restore `current_state`
 3. Rebuild anchor layer:
    - `confirmed_intent.md` (if exists)
+   - `phase1-handoff.md` (if current_state is `research_jtbd` and handoff exists)
    - `product-context-index.md` (if exists)
    - Summary index (rebuilt from `archive_index`)
    - Current Phase/scenario progress
 4. Confirm with the designer: "I detected an incomplete task `<task-name>`, currently at the `<current_state>` phase. Would you like to continue?"
-5. After designer confirmation, load the corresponding Skill and continue execution
-6. **Migration state recovery**: If `current_state === "migration"`, read `_migration/inventory.json` to determine the last completed stage and resume from there. If `current_state === "migration_complete"`, inform designer that migration is done and await instructions.
+5. If `current_state === "research_jtbd"` and `phase1_handoff.fresh_resume_required === true`, explicitly tell the designer that Phase 2 should continue from this fresh resume and load only the boundary handoff package plus the anchor layer.
+6. After designer confirmation, load the corresponding Skill and continue execution
+7. **Migration state recovery**: If `current_state === "migration"`, read `_migration/inventory.json` to determine the last completed stage and resume from there. If `current_state === "migration_complete"`, inform designer that migration is done and await instructions.
 
 ---
 

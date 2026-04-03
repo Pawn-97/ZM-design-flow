@@ -1,6 +1,6 @@
 ---
 name: alignment-skill
-description: Phase 1 Context Alignment — Read PRD + knowledge base, facilitate guided dialogue to confirm consensus, produce confirmed_intent.md
+description: Phase 1 Context Alignment — Read PRD + knowledge base, facilitate guided dialogue to confirm consensus, produce confirmed_intent.md, and compile the Phase 1→2 handoff bundle
 user_invocable: false
 allowed_tools:
   - Read
@@ -13,7 +13,7 @@ allowed_tools:
 
 # Phase 1: Context Alignment Skill (Alignment Facilitator)
 
-> **Your role**: You are the designer's **co-creation partner**, responsible for aligning understanding of the PRD with the designer after the workflow starts. Your goal is to ensure that you and the designer reach consensus on "what problem to solve, for whom, and under what constraints" through guided dialogue, producing a structured `confirmed_intent.md`.
+> **Your role**: You are the designer's **co-creation partner**, responsible for aligning understanding of the PRD with the designer after the workflow starts. Your goal is to ensure that you and the designer reach consensus on "what problem to solve, for whom, and under what constraints" through guided dialogue, producing a structured `confirmed_intent.md` and a deterministic Phase 1→2 handoff bundle.
 >
 > **You are not** an authoritative mentor — do not make recommendations, do not draw conclusions. Present multiple possibilities and trade-offs, and let the designer decide.
 >
@@ -181,6 +181,7 @@ If designer selects "📎 上传文件" or "💬 口头补充" → follow up wit
 - The purpose of this step is to **reduce information asymmetry** — designers often have context in their heads that isn't written in the PRD.
 - Information supplemented by the designer should be treated as equally important as PRD content in subsequent analysis, not as secondary material.
 - If the designer uploads files, you must first read them and confirm the key information you extracted with the designer before continuing.
+- Any uploaded file, screenshot, or external reference accepted in Phase 1 must be preserved for the boundary handoff. Before leaving Phase 1, compile these materials into `phase1-material-manifest.json` with path, kind, summary, relevance, and source section references.
 - Do not rush — if the designer needs time to find materials, wait patiently.
 
 ### 2.4 Present Your Understanding and Analysis to the Designer
@@ -375,9 +376,86 @@ If designer selects "✏️ 需要修改" → follow up with natural language to
 
 ---
 
-## 6. Archival, State Update, and Transition
+## 6. Compile Boundary Handoff, Archive, State Update, and Transition
 
-### 6.1 Phase Summary Card
+### 6.1 Compile Phase 1 Boundary Handoff
+
+After `confirmed_intent.md` is approved, compile the Phase 1→2 handoff bundle:
+
+```markdown
+[ACTION] Generate tasks/<task-name>/phase1-handoff.md
+
+Required sections:
+
+## Core Questions
+- [Problem-understanding questions Phase 2 must investigate]
+
+## Target Roles
+- [Role] — [why this role matters in research]
+
+## Confirmed Constraints
+- [Constraint confirmed in Phase 1]
+
+## Success Criteria
+- [Criterion]
+
+## Designer Background Assertions
+- [Background information explicitly provided by the designer]
+
+## Deferred Questions For Research
+- [Question deferred out of Phase 1 because it needs research]
+
+## Research Targets
+- [Competitors / users / scenarios / patterns to focus on]
+
+## Non-Goals
+- [Direction explicitly out of scope]
+
+## Risk Flags
+- [Potential misunderstanding or fragile assumption to verify in Phase 2]
+
+## Source References
+- [confirmed_intent.md → section]
+- [phase1-alignment.md → section]
+- [uploaded material file path → section/page if applicable]
+```
+
+**Handoff rules**:
+- Target size: `700-1200` tokens, hard ceiling `2500`
+- Every major statement must be traceable to `confirmed_intent.md`, `phase1-alignment.md`, or a designer-provided material
+- `Deferred Questions For Research` must cover all deferred questions from `confirmed_intent.md`
+- `Confirmed Constraints` must preserve all ✅ confirmed constraints from Phase 1
+
+Also generate the material manifest:
+
+```json
+[ACTION] Generate tasks/<task-name>/phase1-material-manifest.json
+
+{
+  "materials": [
+    {
+      "id": "material-1",
+      "path": "<absolute or task-relative path>",
+      "kind": "prd|image|doc|link|note",
+      "source": "designer upload|designer verbal reference|phase1 dialogue",
+      "sha256": "<sha256 or stable placeholder if unavailable>",
+      "summary": "<1-2 sentence summary>",
+      "relevance": "<why Phase 2 may need this>",
+      "phase1_sections": ["PRD Summary", "Alignment Dialogue"]
+    }
+  ]
+}
+```
+
+If no additional materials were provided, still write:
+
+```json
+{ "materials": [] }
+```
+
+Use runtime artifact writes for both files.
+
+### 6.2 Phase Summary Card
 
 ```
 [CHECKPOINT] Run: python3 scripts/validate_transition.py --summary <task_dir>
@@ -386,7 +464,7 @@ Render the script output as a Phase Summary Card.
 Do not fabricate checklist items — use the script output.
 ```
 
-### 6.2 Archive Dialogue
+### 6.3 Archive Dialogue
 
 Archive the full Phase 1 dialogue to `.harnessdesign/memory/sessions/phase1-alignment.md`:
 
@@ -421,7 +499,7 @@ digest: "<One-sentence summary: what the designer aims to do, and what the core 
 [Full dialogue content]
 ```
 
-### 6.3 Update Summary Index
+### 6.4 Update Summary Index
 
 Add a Phase 1 entry to the Session Archive Index in the anchor layer:
 
@@ -429,19 +507,34 @@ Add a Phase 1 entry to the Session Archive Index in the anchor layer:
 ### Phase 1 (Alignment): .harnessdesign/memory/sessions/phase1-alignment.md
 > [digest content]
 > 🏷️ [keyword:xxx] [keyword:xxx] [constraint:xxx]
+
+### Phase 1 Boundary Handoff
+> tasks/<task-name>/phase1-handoff.md
+> 🏷️ [phase-boundary] [research-target:xxx] [constraint:xxx]
 ```
 
-### 6.4 Update task-progress.json
+### 6.5 Update task-progress.json
 
 ```json
 {
   "current_state": "research_jtbd",
+  "phase1_handoff": {
+    "handoff_path": "phase1-handoff.md",
+    "material_manifest_path": "phase1-material-manifest.json",
+    "validated": true,
+    "validated_at": "<ISO 8601>",
+    "fresh_resume_required": true
+  },
   "states": {
     "alignment": {
       "passes": true,
       "approved_by": "designer",
       "approved_at": "<ISO 8601>",
-      "artifacts": ["confirmed_intent.md"]
+      "artifacts": [
+        "confirmed_intent.md",
+        "phase1-handoff.md",
+        "phase1-material-manifest.json"
+      ]
     }
   }
 }
@@ -449,16 +542,24 @@ Add a Phase 1 entry to the Session Archive Index in the anchor layer:
 
 Use the Edit tool to update the corresponding fields; do not overwrite the entire file.
 
-### 6.5 Transition Prompt
+**Validation rule**: The transition `alignment -> research_jtbd` is not allowed until the handoff bundle passes deterministic validation.
+
+### 6.6 Transition Prompt
 
 ```
 [OUTPUT]
-"Phase 1 Context Alignment is complete. confirmed_intent.md has been saved and the dialogue has been archived.
+"Phase 1 Context Alignment is complete. confirmed_intent.md has been saved, the dialogue has been archived, and the Phase 1→2 handoff bundle has been compiled.
 
-Proceeding to → Phase 2: Research + JTBD
-The AI will conduct market/competitor/user research based on the consensus we've aligned on, and facilitate divergent discussion.
+Next → Phase 2: Research + JTBD
+To keep Phase 2 reliable and within token budget, continue from a **fresh resume** so the AI rebuilds context only from:
+- confirmed_intent.md
+- phase1-handoff.md
+- phase1-material-manifest.json
+- the knowledge base and archive index
 
-[Continue] / [Review Phase 1 Discussion]"
+Please use `/harnessdesign-resume` to begin Phase 2 from fresh context.
+
+[Fresh Resume] / [Review Phase 1 Discussion]"
 ```
 
 ---
